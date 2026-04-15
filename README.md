@@ -2,6 +2,19 @@
 
 Repository landing page for the current team workflow: scope, host tracking, per-member checkpoints, and report readiness.
 
+## Due dates (Canvas, chronological)
+
+Times are as listed on Canvas (confirm in Canvas if your section differs). **2026** dates below.
+
+| Due | Deliverable | Points | Submission |
+|-----|-------------|--------|--------------|
+| **Wed Apr 22, 2026 · 6:30 PM** | Final Presentation | 30 | Team submission on Canvas |
+| **Sun Apr 26, 2026 · 6:30 PM** | Final Report | 50 | No separate Canvas upload for this line item; **50 pts** from the submitted report |
+| **Sun Apr 26, 2026 · 11:59 PM** | Final Systems Compromised | 10 | No separate Canvas upload; **10 pts** from report / engagement evidence |
+| **Mon Apr 27, 2026 · 11:59 PM** | Peer Review (quiz) | 10 | **Individual** Canvas submission |
+
+---
+
 ## Host discovery (tracking)
 
 **Live sheet (single source of truth for scans and handoffs):**  
