@@ -4,28 +4,31 @@ Repository landing page for the current team workflow: scope, host tracking, per
 
 ## Host discovery (tracking)
 
-Snapshot from the team **Host_Discovery** sheet. Scan columns show **Complete** where Drive links existed (replace with real links when ready); otherwise leave blank until uploaded.
+**Live sheet (single source of truth for scans and handoffs):**  
+[Host_Discovery — Google Sheet](https://docs.google.com/spreadsheets/d/1J3H6ee8N06ROz1l4pcgxclArq5TN4sk3kIPbHPTCj3A/edit?usp=sharing)
 
-| Exploited? | IP | Ports | Network mapping scan | Vulnerability scan |
-|------------|-----|-------|----------------------|--------------------|
-| | `10.20.160.126` | | | |
-| | `10.20.160.125` | 135; 139; 445; 49152; 49153; 49154; 49182; 49186 | | |
-| | `10.20.160.124` | 135; 139; 389; 445; 3268; 5722; 49152; 49153; 49154; 49155; 49158; 49179; 49193; 49199 | | |
-| | `10.20.160.123` | | | |
-| | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
-| | `10.20.160.112` | | Complete | Complete |
-| | `10.20.160.111` | | | |
-| | `10.20.160.110` | 135; 139; 445; 49152; 49153; 49154; 49179; 49187 | | |
-| | `10.20.160.109` | 135; 139; 445; 49152; 49153; 49154; 49174; 49187 | | |
-| | `10.20.160.108` | 139; 445 | | |
-| | `10.20.160.107` | | | |
-| | `10.20.160.106` | 135; 445; 49152; 49153; 49154; 49180; 49182 | | |
-| | `10.20.160.105` | 135; 139; 445; 49152; 49153; 49154; 49178; 49189 | | |
-| | `10.20.160.104` | 135; 49152; 49153; 49154; 49155; 49182 | | |
-| | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
-| | `10.20.160.102` | | | |
-| | `10.20.160.101` | 135; 139; 445; 49152; 49153; 49154; 49155; 49217; 49222 | | |
-| | `10.20.160.100` | 139; 445 | | |
+The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete** where Drive links exist in the sheet (swap in markdown links here if you want them in-repo). **Responsible:** default is **three IPs per teammate** (top-to-bottom list); trade in the sheet and update this table + the owner’s folder `README.md` if you reassign.
+
+| Exploited? | Responsible | IP | Ports | Network mapping scan | Vulnerability scan |
+|------------|---------------|-----|-------|----------------------|--------------------|
+| | **J_Solis** | `10.20.160.126` | | | |
+| | **J_Solis** | `10.20.160.125` | 135; 139; 445; 49152; 49153; 49154; 49182; 49186 | | |
+| | **J_Solis** | `10.20.160.124` | 135; 139; 389; 445; 3268; 5722; 49152; 49153; 49154; 49155; 49158; 49179; 49193; 49199 | | |
+| | **T_Amor** | `10.20.160.123` | | | |
+| | **T_Amor** | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
+| | **T_Amor** | `10.20.160.112` | | Complete | Complete |
+| | **H_Padilla** | `10.20.160.111` | | | |
+| | **H_Padilla** | `10.20.160.110` | 135; 139; 445; 49152; 49153; 49154; 49179; 49187 | | |
+| | **H_Padilla** | `10.20.160.109` | 135; 139; 445; 49152; 49153; 49154; 49174; 49187 | | |
+| | **R_White** | `10.20.160.108` | 139; 445 | | |
+| | **R_White** | `10.20.160.107` | | | |
+| | **R_White** | `10.20.160.106` | 135; 445; 49152; 49153; 49154; 49180; 49182 | | |
+| | **B_Drummond** | `10.20.160.105` | 135; 139; 445; 49152; 49153; 49154; 49178; 49189 | | |
+| | **B_Drummond** | `10.20.160.104` | 135; 49152; 49153; 49154; 49155; 49182 | | |
+| | **B_Drummond** | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
+| | **A_Rocha** | `10.20.160.102` | | | |
+| | **A_Rocha** | `10.20.160.101` | 135; 139; 445; 49152; 49153; 49154; 49155; 49217; 49222 | | |
+| | **A_Rocha** | `10.20.160.100` | 139; 445 | | |
 
 ---
 
@@ -71,7 +74,7 @@ Snapshot from the team **Host_Discovery** sheet. Scan columns show **Complete** 
 Use this as the **default ladder**; split hosts and roles in stand-up so nobody duplicates work without logging it.
 
 - **CP0 — Setup:** Confirm authorized range, folder conventions, and who owns which IPs or workstreams. Log identity stamps if your workflow uses them.
-- **CP1 — Discovery:** Keep the [Host discovery](#host-discovery-tracking) table honest (IPs, ports, scan column placeholders). Dead hosts and empty rows are fine if documented.
+- **CP1 — Discovery:** Keep the [Host discovery](#host-discovery-tracking) table and [sheet](https://docs.google.com/spreadsheets/d/1J3H6ee8N06ROz1l4pcgxclArq5TN4sk3kIPbHPTCj3A/edit?usp=sharing) aligned (IPs, ports, **Responsible**, scan placeholders).
 - **CP2 — Mapping:** For each interesting host, note services, likely attack surface, and what you ruled out (not only what worked).
 - **CP3 — Exploitation:** Time-box attempts; capture enough context that someone else can reproduce or understand a negative result.
 - **CP4 — Proof:** Treat `local.txt` / `proof.txt` (or equivalent) as explicit gates; screenshot or transcribe with timestamps where required.
@@ -85,49 +88,16 @@ Use this as the **default ladder**; split hosts and roles in stand-up so nobody 
 
 ## Checkpoints by teammate folder
 
-Same CP ladder in each block; tick in your folder’s `README.md` or here as you go. **Promote** report-ready screenshots into `1_Screenshots/`; keep rough logs under your name.
+Each teammate folder has its own **CP table** and **IP slice** (three hosts by default). Tick boxes there or in the sheet; keep this README’s host table aligned when you trade rows.
 
-### [`J_Solis/`](J_Solis/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
-
-### [`T_Amor/`](T_Amor/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
-
-### [`H_Padilla/`](H_Padilla/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
-
-### [`R_White/`](R_White/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
-
-### [`B_Drummond/`](B_Drummond/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
-
-### [`A_Rocha/`](A_Rocha/)
-
-- [ ] **CP0–CP1:** Scope + discovery notes; update shared host table if you touched an IP.
-- [ ] **CP2–CP3:** Vuln hypotheses and exploit attempts (include failures).
-- [ ] **CP4–CP5:** Proof / pivot artifacts or explicit “blocked” notes.
-- [ ] **CP6–CP7:** Figures and text handed to report owner; submission-ready pass.
+| Folder | README |
+|--------|--------|
+| J_Solis | [`J_Solis/README.md`](J_Solis/README.md) |
+| T_Amor | [`T_Amor/README.md`](T_Amor/README.md) |
+| H_Padilla | [`H_Padilla/README.md`](H_Padilla/README.md) |
+| R_White | [`R_White/README.md`](R_White/README.md) |
+| B_Drummond | [`B_Drummond/README.md`](B_Drummond/README.md) |
+| A_Rocha | [`A_Rocha/README.md`](A_Rocha/README.md) |
 
 ---
 
