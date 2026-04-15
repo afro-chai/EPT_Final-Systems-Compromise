@@ -48,7 +48,7 @@ The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete**
 | Path | Purpose |
 |------|---------|
 | [`README.md`](README.md) | Team runbook, host discovery table, checkpoints |
-| [`0_Provided_Docs/`](0_Provided_Docs/) | Course PDFs, rubric, countdown (local copy if present) |
+| [`0_Provided_Docs/`](0_Provided_Docs/) | Course PDFs, rubric, slide screenshots — start at [`0_Provided_Docs/README.md`](0_Provided_Docs/README.md) |
 | [`1_Screenshots/`](1_Screenshots/) | Report-ready figures (create when you start capturing) |
 | [`2_Final_Report/`](2_Final_Report/) | Final PDF source (optional folder; template can live here) |
 | [`EPT_Final_Assessment_Report.tex`](EPT_Final_Assessment_Report.tex) | LaTeX report template (move under `2_Final_Report/` if you prefer) |
@@ -109,3 +109,18 @@ Use the included template:
 
 You can move it into `2_Final_Report/` if your team creates that folder.
 
+---
+
+## Team Drive (final deck + archive)
+
+Shared **Google Drive** for the **final presentation** and **historical** team work (slides, drafts, etc.):
+
+[EPT Final Project — Google Drive folder](https://drive.google.com/drive/folders/1HmTMpzZdm0Z97udgU8P0C70jRPTnjny7?usp=sharing)
+
+---
+
+## Inviting teammates
+
+**GitHub (this repo)** — someone with **admin** on the repository: **Settings → Collaborators** (or **Collaborators and teams** on an org repo) → **Add people**, enter their GitHub username or email, choose role (**Write** is typical for teammates), and send the invite. They must **accept** the invitation (email or GitHub notifications) before they can push.
+
+**Google Drive (folder above)** — open the folder in Drive → **Share** → add emails and set access (**Editor** if they should upload the deck, **Viewer** if read-only). For a class team, **Editor** for all presenters usually avoids last-minute upload blocks.
