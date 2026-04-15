@@ -6,14 +6,14 @@ Repository landing page for the current team workflow: scope, checkpoints, evide
 
 Snapshot from the team **Host_Discovery** sheet. Scan columns show **Complete** where Drive links existed (replace with real links when ready); otherwise leave blank until uploaded.
 
-| Reported? | IP | Ports | Network mapping scan | Vulnerability scan |
-|-----------|-----|-------|----------------------|--------------------|
+| Exploited? | IP | Ports | Network mapping scan | Vulnerability scan |
+|------------|-----|-------|----------------------|--------------------|
 | | `10.20.160.126` | | | |
 | | `10.20.160.125` | 135; 139; 445; 49152; 49153; 49154; 49182; 49186 | | |
 | | `10.20.160.124` | 135; 139; 389; 445; 3268; 5722; 49152; 49153; 49154; 49155; 49158; 49179; 49193; 49199 | | |
 | | `10.20.160.123` | | | |
-| YES / HW2 / AFR | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
-| YES / HW2 / AFR | `10.20.160.112` | | Complete | Complete |
+| | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
+| | `10.20.160.112` | | Complete | Complete |
 | | `10.20.160.111` | | | |
 | | `10.20.160.110` | 135; 139; 445; 49152; 49153; 49154; 49179; 49187 | | |
 | | `10.20.160.109` | 135; 139; 445; 49152; 49153; 49154; 49174; 49187 | | |
@@ -22,7 +22,7 @@ Snapshot from the team **Host_Discovery** sheet. Scan columns show **Complete** 
 | | `10.20.160.106` | 135; 445; 49152; 49153; 49154; 49180; 49182 | | |
 | | `10.20.160.105` | 135; 139; 445; 49152; 49153; 49154; 49178; 49189 | | |
 | | `10.20.160.104` | 135; 49152; 49153; 49154; 49155; 49182 | | |
-| YES / HW2 / AFR | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
+| | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
 | | `10.20.160.102` | | | |
 | | `10.20.160.101` | 135; 139; 445; 49152; 49153; 49154; 49155; 49217; 49222 | | |
 | | `10.20.160.100` | 139; 445 | | |
