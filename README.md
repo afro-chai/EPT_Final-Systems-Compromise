@@ -48,7 +48,6 @@ Snapshot from the team **Host_Discovery** sheet. Scan columns show **Complete** 
 | `0_Provided_Docs/` | Course docs, countdown notes, rubric |
 | `1_Screenshots/` | Labeled figures used in the report |
 | `2_Final_Report/` | Final report source and export |
-| `3_Work/` | Shared raw notes, command logs, failed/alternate paths ([`3_Work/README.md`](3_Work/README.md)) |
 | `J_Solis/`, `T_Amor/`, `H_Padilla/`, `R_White/`, `B_Drummond/`, `A_Rocha/` | Per-teammate scratch at repo root |
 
 ---
