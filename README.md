@@ -103,11 +103,16 @@ Each teammate folder has its own **CP table** and **IP slice** (three hosts by d
 
 ## Report template
 
-Use the included template:
+The final write-up should follow the course report structure (Executive Summary, Detailed Findings, Technical Overview, Technical Details, plus title page, TOC, page numbers, and numbered figures). Use one of these workflows—pick what the **report integrator** prefers and stick to it:
 
-- `EPT_Final_Assessment_Report.tex`
+| Where | Use for |
+|-------|---------|
+| **[Team report on Overleaf](https://www.overleaf.com/2326867146vjjczghdjbdx#5c8013)** | Shared editing, PDF build, and submission packaging. Invite collaborators from Overleaf’s **Share** menu (same emails as GitHub/Drive helps). |
+| **[`EPT_Final_Assessment_Report.tex`](EPT_Final_Assessment_Report.tex)** (this repo) | Version-controlled source; copy changes to or from Overleaf when sections stabilize, or compile locally with `pdflatex` if you skip Overleaf. |
 
-You can move it into `2_Final_Report/` if your team creates that folder.
+**Handy split:** keep evidence and narrative drafts in Git + member folders; treat Overleaf as the **integration + PDF** lane unless you fully compile from the repo.
+
+If you want a dedicated folder in Git, move or duplicate the `.tex` (and figures path) under [`2_Final_Report/`](2_Final_Report/) and point Overleaf at a synced project or manual upload—just avoid two divergent “final” copies without an owner.
 
 ---
 
