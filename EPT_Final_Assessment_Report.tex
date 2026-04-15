@@ -1,0 +1,162 @@
+% EPT Final Assessment Report Template
+% Compile: pdflatex EPT_Final_Assessment_Report.tex (run twice for TOC)
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\title{EPT Final Assessment Report}
+\author{
+Team 6 \\
+Team Members: [Names] \\
+Course: Ethical Penetration Testing
+}
+\date{[Submission Date]}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{EPT Final Assessment Report}
+\rhead{Team 6}
+\cfoot{\thepage\ of \pageref{LastPage}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --------------------------------------------------------------------------
+\section{Executive Summary}
+% Max ~1/2 page. Avoid technical jargon.
+
+\noindent
+[High-level summary of the assessment in plain language.]
+
+\paragraph{Key findings (plain English).}
+[Briefly list the most important findings.]
+
+\paragraph{Business impact.}
+[Describe risk to the organization if findings are exploited.]
+
+\paragraph{High-level recommendations.}
+[List the most important risk-reduction actions.]
+
+% --------------------------------------------------------------------------
+\section{Detailed Findings}
+% Use a consistent table or bullet format for each finding.
+
+\subsection*{Finding 1: [Vulnerability Name]}
+\begin{itemize}
+  \item \textbf{Description:} [What is the issue?]
+  \item \textbf{Severity:} [Critical / High / Medium / Low]
+  \item \textbf{Affected Hosts:} [IP / Hostname]
+  \item \textbf{Impact:} [What can an attacker do?]
+  \item \textbf{Recommended Mitigation:} [How to fix or reduce risk]
+  \item \textbf{Evidence:} [Figure X]
+\end{itemize}
+
+\subsection*{Finding 2: [Vulnerability Name]}
+\begin{itemize}
+  \item \textbf{Description:} [What is the issue?]
+  \item \textbf{Severity:} [Critical / High / Medium / Low]
+  \item \textbf{Affected Hosts:} [IP / Hostname]
+  \item \textbf{Impact:} [What can an attacker do?]
+  \item \textbf{Recommended Mitigation:} [How to fix or reduce risk]
+  \item \textbf{Evidence:} [Figure X]
+\end{itemize}
+
+\subsection*{Finding 3: [Vulnerability Name]}
+\begin{itemize}
+  \item \textbf{Description:} [What is the issue?]
+  \item \textbf{Severity:} [Critical / High / Medium / Low]
+  \item \textbf{Affected Hosts:} [IP / Hostname]
+  \item \textbf{Impact:} [What can an attacker do?]
+  \item \textbf{Recommended Mitigation:} [How to fix or reduce risk]
+  \item \textbf{Evidence:} [Figure X]
+\end{itemize}
+
+% --------------------------------------------------------------------------
+\section{Technical Overview}
+% Narrative "how we broke in" walkthrough.
+
+\subsection{Initial Access}
+[How target was identified and initial entry point selected.]
+
+\subsection{Exploitation Steps}
+[Step-by-step narrative, including what worked and did not work.]
+
+\subsection{Privilege Escalation}
+[How privilege level was increased; local exploits/credential paths.]
+
+\subsection{Lateral Movement}
+[How movement between systems occurred, including pivot techniques.]
+
+\subsection{Proof of Compromise}
+[Where local.txt / proof.txt were found and validated.]
+
+% --------------------------------------------------------------------------
+\section{Technical Details}
+% Host-by-host structured view for easy grading scan.
+
+\subsection*{Host: [IP / Hostname]}
+\begin{itemize}
+  \item \textbf{Open Ports:} [List]
+  \item \textbf{Services:} [List]
+  \item \textbf{Vulnerabilities Identified:} [List]
+  \item \textbf{Exploitation Method:} [Method/tool + short outcome]
+  \item \textbf{Proof (Hash / Flag):} [Value]
+  \item \textbf{Screenshots:} [Figure X, Figure Y]
+\end{itemize}
+
+\subsection*{Host: [Next IP / Hostname]}
+\begin{itemize}
+  \item \textbf{Open Ports:} [List]
+  \item \textbf{Services:} [List]
+  \item \textbf{Vulnerabilities Identified:} [List]
+  \item \textbf{Exploitation Method:} [Method/tool + short outcome]
+  \item \textbf{Proof (Hash / Flag):} [Value]
+  \item \textbf{Screenshots:} [Figure X, Figure Y]
+\end{itemize}
+
+% --------------------------------------------------------------------------
+\section{Screenshots / Evidence}
+% Captions must be numbered and match walkthrough steps.
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=0.92\textwidth]{example1.png}
+\caption{Figure 1: [Description]}
+\label{fig:one}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=0.92\textwidth]{example2.png}
+\caption{Figure 2: [Description]}
+\label{fig:two}
+\end{figure}
+
+% --------------------------------------------------------------------------
+\section{Recommendations}
+% Optional but strong for executive value and grading quality.
+
+\begin{itemize}
+  \item Patch outdated systems and vulnerable software.
+  \item Disable unnecessary services and exposed ports.
+  \item Enforce strong authentication and credential hygiene.
+  \item Segment networks to reduce lateral movement risk.
+  \item Improve monitoring, alerting, and logging coverage.
+\end{itemize}
+
+\end{document}
+
