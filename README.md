@@ -24,6 +24,7 @@ Repository landing page for the current team workflow: scope, checkpoints, evide
 | `1_Screenshots/` | Labeled figures used in the report |
 | `2_Final_Report/` | Final report source and export |
 | `3_Work/` | Raw notes, command logs, failed/alternate paths |
+| `3_Work/<Member>/` | Per-teammate scratch (see [`3_Work/README.md`](3_Work/README.md)) |
 
 ---
 
@@ -96,6 +97,7 @@ For each finding, always include:
 
 ## Team execution notes
 
+- **Personal logs**: each person has a folder under `3_Work/` (`J_Solis`, `T_Amor`, `H_Padilla`, `R_White`, `B_Drummond`, `A_Rocha`) for drafts and transcripts; **promote** report-ready material to shared paths (for example `1_Screenshots/`).
 - Assign one teammate as evidence curator to maintain figure numbering consistency.
 - Assign one teammate as report integrator to keep section naming and tone consistent.
 - Keep a single source-of-truth findings table before drafting full narrative sections.
