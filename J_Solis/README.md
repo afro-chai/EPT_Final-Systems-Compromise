@@ -10,6 +10,17 @@
 
 Rough notes and command logs stay here. Move **final** evidence to [`../1_Screenshots/`](../1_Screenshots/) when it is report-ready.
 
+**Your Kali VM:** **KALI1** (same as PWN2). Use this machine for scans, exploits, and listeners so teammates do not overwrite each other’s work.
+
+| Teammate | Kali VM |
+|----------|---------|
+| J_Solis | **KALI1** |
+| T_Amor | **KALI2** |
+| H_Padilla | **KALI3** |
+| R_White | **KALI4** |
+| B_Drummond | **KALI5** |
+| A_Rocha | **KALI6** |
+
 ---
 
 ## Your hosts (you are responsible for these by default)

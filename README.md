@@ -20,6 +20,17 @@ Times are as listed on Canvas (confirm in Canvas if your section differs). **202
 **Live sheet (single source of truth for scans and handoffs):**  
 [Host_Discovery — Google Sheet](https://docs.google.com/spreadsheets/d/1J3H6ee8N06ROz1l4pcgxclArq5TN4sk3kIPbHPTCj3A/edit?usp=sharing)
 
+**Lab Kali (PWN2 convention):** Everyone should use the **same Kali VM from PWN2** for this engagement so we do not collide on shells, `LHOST` / listener ports, Metasploit workspaces, or home-directory scan output. Stay on your assigned machine unless the team explicitly agrees a swap.
+
+| Teammate | Kali VM |
+|----------|---------|
+| J_Solis | **KALI1** |
+| T_Amor | **KALI2** |
+| H_Padilla | **KALI3** |
+| R_White | **KALI4** |
+| B_Drummond | **KALI5** |
+| A_Rocha | **KALI6** |
+
 The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete** where Drive links exist in the sheet (swap in markdown links here if you want them in-repo). **Responsible:** default is **three IPs per teammate** (top-to-bottom list); trade in the sheet and update this table + the owner’s folder `README.md` if you reassign.
 
 | Exploited? | Responsible | IP | Ports | Network mapping scan | Vulnerability scan |
