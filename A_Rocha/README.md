@@ -2,17 +2,32 @@
 
 ## Where to start (STEPfwd)
 
+<table>
+<tr valign="top">
+<td width="62%">
+
 If you forgot how to open the lab environment:
 
-1. Log in to **STEPfwd** (CERT Simulation, Training & Exercise platform — CMU Software Engineering Institute).
-2. Open the **Exercises** tab (not Curriculums or Bookmarks).
-3. Under Exercises, keep **Exercises** selected (not **On Demand Labs**).
-4. Find the row **Exercise: EPT**, **Session: Session 1**, **Team: Team_6** (confirm session/team with the instructor if labels change).
-5. Click **Connect** (the link on the right, often highlighted) to launch the exercise and reach your assigned **Kali** VM.
+<ol>
+<li>Log in to <strong>STEPfwd</strong> (CERT Simulation, Training &amp; Exercise platform — CMU Software Engineering Institute).</li>
+<li>Open the <strong>Exercises</strong> tab (not Curriculums or Bookmarks).</li>
+<li>Under Exercises, keep <strong>Exercises</strong> selected (not <strong>On Demand Labs</strong>).</li>
+<li>Find the row <strong>Exercise: EPT</strong>, <strong>Session: Session 1</strong>, <strong>Team: Team_6</strong> (confirm session/team with the instructor if labels change).</li>
+<li>Click <strong>Connect</strong> (the link on the right, highlighted in yellow in the screenshot) to launch the exercise and reach your assigned <strong>Kali</strong> VM.</li>
+</ol>
 
-![STEPfwd: Exercises → EPT Session 1 → Team_6 → Connect](../0_Provided_Docs/STEPfwd_EPT_Session1_Team6_connect.png)
+<p><strong>This folder:</strong> use <a href="work/"><code>work/</code></a> for logs, notes, and rough output; use <a href="Screenshots/"><code>Screenshots/</code></a> for draft captures. Promote <strong>final</strong> evidence to the team folder <a href="../1_Screenshots/"><code>1_Screenshots/</code></a> when it is report-ready.</p>
 
-**This folder:** use [`work/`](work/) for logs, notes, and rough output; use [`Screenshots/`](Screenshots/) for draft captures. Promote **final** evidence to the team folder [`../1_Screenshots/`](../1_Screenshots/) when it is report-ready.
+</td>
+<td width="38%" align="center">
+
+<img src="Screenshots/stepfwd_connect_team6.png" width="280" alt="STEPfwd dashboard: Exercises tab, EPT Session 1, Team_6, yellow Connect link"/>
+
+<p><small>STEPfwd UI (scaled for README)</small></p>
+
+</td>
+</tr>
+</table>
 
 ---
 
