@@ -47,6 +47,100 @@ If you forgot how to open the lab environment:
 
 ---
 
+## Nessus — my hosts (specs + findings)
+
+Scans were run as **Final_Systems_Project**. Raw screenshots: [`Screenshots/vulnerabilities/`](Screenshots/vulnerabilities/).
+
+### `10.20.160.102` (Linux)
+
+**Host details (from scan sidebar)**
+
+| Field | Value |
+|-------|--------|
+| **IP** | 10.20.160.102 |
+| **OS** | Linux Kernel 2.6 |
+| **Scan start** | 7:41 PM |
+| **Scan end** | 7:59 PM |
+| **Elapsed** | 18 minutes |
+
+**Findings (overview)** — Nessus reported **28** plugin rows for this host (see screenshot for full list). Notable severities include:
+
+| Severity | Vulnerability (summary) | Family | Count (per table) |
+|----------|-------------------------|--------|-------------------|
+| Critical | GNU Bash Environment Variable Handling Code Injection (**Shellshock**) | CGI abuses | 2 |
+| Critical | **SSL Version 2 and 3** Protocol Detection | Service detection | 1 |
+| Mixed | SSL (multiple issues) | General | 12 |
+| Mixed | IETF MD5 (multiple issues) | General | 2 |
+| Mixed | TLS (multiple issues) | Misc. | 2 |
+| Medium | HTTP **TRACE / TRACK** Methods Allowed | Web servers | 2 |
+| Medium | Multiple Web Server **printenv** CGI Information Disclosure | CGI abuses | 2 |
+| Medium | SSL **DROWN** Attack Vulnerability | Misc. | 1 |
+| Medium | **TLS 1.0** Protocol Detection | Service detection | 1 |
+| Low | SSL/TLS **Logjam** (DH ≤ 1024 bits) | Misc. | 1 |
+| Info | HTTP, PHP, Service Detection, etc. | (various) | (see export) |
+
+![Nessus: 10.20.160.102](Screenshots/vulnerabilities/nessus_10_20_160_102.png)
+
+---
+
+### `10.20.160.101` (Windows 7)
+
+**Host details (from scan sidebar)**
+
+| Field | Value |
+|-------|--------|
+| **IP** | 10.20.160.101 |
+| **MAC** | 00:50:56:86:4F:A2 |
+| **OS** | Microsoft Windows 7 Ultimate |
+| **Scan start** | 7:41 PM |
+| **Scan end** | 8:00 PM |
+| **Elapsed** | 18 minutes |
+
+**Findings (overview)** — **44** total findings (donut: Critical **1**, Medium **2**, Low **2**, Info **39**). Examples from the top of the table:
+
+| Severity | Vulnerability (summary) | Family | Count |
+|----------|-------------------------|--------|-------|
+| Critical | **SSL Version 2 and 3** Protocol Detection | Service detection | 1 |
+| Medium | **RDP** Server Man-in-the-Middle Weakness | General | 1 |
+| Medium | SSL **DROWN** Attack Vulnerability | Misc. | 1 |
+| Low | SSL/TLS **Logjam** (DH ≤ 1024 bits) | Misc. | 1 |
+| Low | Terminal Services encryption **not FIPS-140** compliant | Misc. | 1 |
+| Info | DNS hostnames, CPE, device type, Ethernet MAC vendor, **FTP** server detection, etc. | (various) | (see export) |
+
+![Nessus: 10.20.160.101](Screenshots/vulnerabilities/nessus_10_20_160_101.png)
+
+---
+
+### `10.20.160.100` (Windows XP)
+
+**Host details (from scan sidebar)**
+
+| Field | Value |
+|-------|--------|
+| **IP** | 10.20.160.100 |
+| **OS** | Microsoft Windows XP **Service Pack 2**; Microsoft Windows XP **Service Pack 3**; Windows XP for Embedded Systems |
+| **Scan start** | 7:41 PM |
+| **Scan end** | 7:52 PM |
+| **Elapsed** | 11 minutes |
+
+**Findings (overview)** — **20** total findings. Highlights from the table:
+
+| Severity | Vulnerability (summary) | Family | Count |
+|----------|-------------------------|--------|-------|
+| Mixed | Microsoft Windows (**multiple issues**) | Windows | 7 |
+| Critical | Microsoft Windows XP **Unsupported Installation** Detection | Windows | 1 |
+| Mixed | Microsoft Windows (multiple issues) | Misc. | 2 |
+| Mixed | **SMB** (multiple issues) | Misc. | 2 |
+| Medium | **RDP** Server Man-in-the-Middle Weakness | General | 1 |
+| Low | Terminal Services encryption **not FIPS-140** compliant | Misc. | 1 |
+| Info | SMB (multiple issues), Nessus SYN scanner, CPE, device type, patch/OS notes, RDP screenshot, etc. | (various) | (see export) |
+
+**Attack-surface takeaway:** End-of-life **Windows XP** plus **SMB** and **RDP**-related findings are the main story for validation in the lab.
+
+![Nessus: 10.20.160.100](Screenshots/vulnerabilities/nessus_10_20_160_100.png)
+
+---
+
 ## Checkpoints (CP)
 
 | CP | Gate |
