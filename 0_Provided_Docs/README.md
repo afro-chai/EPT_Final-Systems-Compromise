@@ -10,6 +10,17 @@ Shared Google Drive for the **final presentation** and **historical** team artif
 
 ---
 
+## STEPfwd — open the lab (EPT / Team 6)
+
+1. Log in to **STEPfwd** (CERT Simulation, Training & Exercise — CMU SEI).
+2. Open the **Exercises** tab → sub-view **Exercises** (not On Demand Labs).
+3. Find **Exercise: EPT**, **Session: Session 1**, **Team: Team_6** (verify labels with the instructor if they differ).
+4. Click **Connect** to launch the environment and reach your Kali VM.
+
+![STEPfwd dashboard: Exercises, EPT Session 1, Team_6, Connect](STEPfwd_EPT_Session1_Team6_connect.png)
+
+---
+
 ## Final grading & presentation (slide screenshots)
 
 Captures from the course **final breakdown** and **presentation / report** guidance. Confirm dates and Canvas rules on the live syllabus and Discord; treat these as **reference** only.

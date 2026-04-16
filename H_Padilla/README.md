@@ -1,5 +1,21 @@
 # H_Padilla — personal work folder
 
+## Where to start (STEPfwd)
+
+If you forgot how to open the lab environment:
+
+1. Log in to **STEPfwd** (CERT Simulation, Training & Exercise platform — CMU Software Engineering Institute).
+2. Open the **Exercises** tab (not Curriculums or Bookmarks).
+3. Under Exercises, keep **Exercises** selected (not **On Demand Labs**).
+4. Find the row **Exercise: EPT**, **Session: Session 1**, **Team: Team_6** (confirm session/team with the instructor if labels change).
+5. Click **Connect** (the link on the right, often highlighted) to launch the exercise and reach your assigned **Kali** VM.
+
+![STEPfwd: Exercises → EPT Session 1 → Team_6 → Connect](../0_Provided_Docs/STEPfwd_EPT_Session1_Team6_connect.png)
+
+**This folder:** use [`work/`](work/) for logs, notes, and rough output; use [`Screenshots/`](Screenshots/) for draft captures. Promote **final** evidence to the team folder [`../1_Screenshots/`](../1_Screenshots/) when it is report-ready.
+
+---
+
 ## Host_Discovery (master)
 
 **Edit with the team and keep in sync with the root README host table:**
@@ -7,8 +23,6 @@
 [Host_Discovery — Google Sheet](https://docs.google.com/spreadsheets/d/1J3H6ee8N06ROz1l4pcgxclArq5TN4sk3kIPbHPTCj3A/edit?usp=sharing)
 
 **Default rule:** everyone should own **at least three** IPs in the lab range. You can **trade** hosts by updating the sheet, then mirror changes in [root `README.md`](../README.md) and each affected teammate’s `README.md`.
-
-Rough notes and command logs stay here. Move **final** evidence to [`../1_Screenshots/`](../1_Screenshots/) when it is report-ready.
 
 **Your Kali VM:** **KALI3** (same as PWN2). Use this machine for scans, exploits, and listeners so teammates do not overwrite each other’s work.
 

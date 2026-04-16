@@ -31,6 +31,8 @@ Times are as listed on Canvas (confirm in Canvas if your section differs). **202
 | B_Drummond | **KALI5** |
 | A_Rocha | **KALI6** |
 
+**Lab portal (STEPfwd):** step-by-step **Connect** instructions and screenshot live at the top of each teammate’s folder README and in [`0_Provided_Docs/README.md`](0_Provided_Docs/README.md).
+
 The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete** where Drive links exist in the sheet (swap in markdown links here if you want them in-repo). **Responsible:** default is **three IPs per teammate** (top-to-bottom list); trade in the sheet and update this table + the owner’s folder `README.md` if you reassign.
 
 | Exploited? | Responsible | IP | Ports | Network mapping scan | Vulnerability scan |
@@ -76,12 +78,12 @@ The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete**
 | [`1_Screenshots/`](1_Screenshots/) | Report-ready figures (create when you start capturing) |
 | [`2_Final_Report/`](2_Final_Report/) | Final PDF source (optional folder; template can live here) |
 | [`EPT_Final_Assessment_Report.tex`](EPT_Final_Assessment_Report.tex) | LaTeX report template (move under `2_Final_Report/` if you prefer) |
-| [`J_Solis/`](J_Solis/) | J_Solis scratch + personal CP checklist (below) |
-| [`T_Amor/`](T_Amor/) | T_Amor scratch + personal CP checklist (below) |
-| [`H_Padilla/`](H_Padilla/) | H_Padilla scratch + personal CP checklist (below) |
-| [`R_White/`](R_White/) | R_White scratch + personal CP checklist (below) |
-| [`B_Drummond/`](B_Drummond/) | B_Drummond scratch + personal CP checklist (below) |
-| [`A_Rocha/`](A_Rocha/) | A_Rocha scratch + personal CP checklist (below) |
+| [`J_Solis/`](J_Solis/) | README (STEPfwd, Kali, hosts, CP), [`work/`](J_Solis/work/), [`Screenshots/`](J_Solis/Screenshots/) |
+| [`T_Amor/`](T_Amor/) | README (STEPfwd, Kali, hosts, CP), [`work/`](T_Amor/work/), [`Screenshots/`](T_Amor/Screenshots/) |
+| [`H_Padilla/`](H_Padilla/) | README (STEPfwd, Kali, hosts, CP), [`work/`](H_Padilla/work/), [`Screenshots/`](H_Padilla/Screenshots/) |
+| [`R_White/`](R_White/) | README (STEPfwd, Kali, hosts, CP), [`work/`](R_White/work/), [`Screenshots/`](R_White/Screenshots/) |
+| [`B_Drummond/`](B_Drummond/) | README (STEPfwd, Kali, hosts, CP), [`work/`](B_Drummond/work/), [`Screenshots/`](B_Drummond/Screenshots/) |
+| [`A_Rocha/`](A_Rocha/) | README (STEPfwd, Kali, hosts, CP), [`work/`](A_Rocha/work/), [`Screenshots/`](A_Rocha/Screenshots/) |
 
 ---
 
