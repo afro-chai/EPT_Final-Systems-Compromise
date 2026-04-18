@@ -29,6 +29,8 @@ If you forgot how to open the lab environment:
 </tr>
 </table>
 
+**Plan of attack (specs, vulns recap, commands per IP):** [`work/README.md`](work/README.md)
+
 ---
 
 ## Host_Discovery (master)
