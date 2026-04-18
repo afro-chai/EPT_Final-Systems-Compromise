@@ -22,14 +22,14 @@ Times are as listed on Canvas (confirm in Canvas if your section differs). **202
 
 **Lab Kali (PWN2 convention):** Everyone should use the **same Kali VM from PWN2** for this engagement so we do not collide on shells, `LHOST` / listener ports, Metasploit workspaces, or home-directory scan output. Stay on your assigned machine unless the team explicitly agrees a swap.
 
-| Teammate | Kali VM |
-|----------|---------|
-| J_Solis | **KALI1** |
-| T_Amor | **KALI2** |
-| H_Padilla | **KALI3** |
-| R_White | **KALI4** |
-| B_Drummond | **KALI5** |
-| A_Rocha | **KALI6** |
+| Teammate | Kali VM | Responsibilities |
+|----------|---------|------------------|
+| J_Solis | **KALI1** | **Presentation** & team **submission** (final deck / Canvas for the presentation deliverable) |
+| T_Amor | **KALI2** | **Presentation** & team **submission** (final deck / Canvas for the presentation deliverable) |
+| H_Padilla | **KALI3** | **Coordination** & **synchronization** (stand-ups, handoffs, sheet/repo alignment—pair with A_Rocha) |
+| R_White | **KALI4** | **Written report** & team **submission** (LaTeX/PDF, Canvas for the report deliverable) |
+| B_Drummond | **KALI5** | **Written report** & team **submission** (LaTeX/PDF, Canvas for the report deliverable) |
+| A_Rocha | **KALI6** | **Coordination** & **synchronization** (stand-ups, handoffs, sheet/repo alignment—pair with H_Padilla) |
 
 **Lab portal (STEPfwd):** step-by-step **Connect** instructions and screenshot live at the top of each teammate’s folder README and in [`0_Provided_Docs/README.md`](0_Provided_Docs/README.md).
 

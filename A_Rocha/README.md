@@ -41,14 +41,16 @@ If you forgot how to open the lab environment:
 
 **Your Kali VM:** **KALI6** (same as PWN2). Use this machine for scans, exploits, and listeners so teammates do not overwrite each other’s work.
 
-| Teammate | Kali VM |
-|----------|---------|
-| J_Solis | **KALI1** |
-| T_Amor | **KALI2** |
-| H_Padilla | **KALI3** |
-| R_White | **KALI4** |
-| B_Drummond | **KALI5** |
-| A_Rocha | **KALI6** |
+**Your responsibilities:** **Coordination** and **synchronization** across the team (deadlines, Host_Discovery sheet, repo hygiene, handoffs—pair with **H_Padilla**).
+
+| Teammate | Kali VM | Responsibilities |
+|----------|---------|------------------|
+| J_Solis | **KALI1** | Presentation & submission |
+| T_Amor | **KALI2** | Presentation & submission |
+| H_Padilla | **KALI3** | Coordination & synchronization |
+| R_White | **KALI4** | Written report & submission |
+| B_Drummond | **KALI5** | Written report & submission |
+| A_Rocha | **KALI6** | Coordination & synchronization |
 
 ---
 
