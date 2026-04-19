@@ -39,6 +39,8 @@ check
 run
 ```
 
+**Still seeing `10.20.160.101:80` and `SMB Login Error` / `IPC$` on port 80?** You left **`RPORT 80`** set — **`show options`** must show **`RPORT 445`**. Port **80** is not SMB; the module then fails SMB negotiation and may report **`not-vulnerable`** incorrectly. See also [`101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png`](../../Screenshots/101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png).
+
 ---
 
 ## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)
