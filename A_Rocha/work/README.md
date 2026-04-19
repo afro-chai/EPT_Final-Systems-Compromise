@@ -349,6 +349,17 @@ Keep **`/dotproject/`** (**2.1.6**) as the **parallel** app lane; cross-check Ni
 
 **Summary:** You **do** have a stable **app base** for PHP work: **`/dotproject/`**. You **do not** reuse that string as Shellshock **`TARGETURI`** unless you later find a **CGI** endpoint; for dotProject, the interesting file paths come from **`searchsploit -x …`** and **`curl`** verification, not from the Shellshock module.
 
+### Metasploit — `search dot` (noise; **no dotProject module**)
+
+![102-002 — msf search “dot” matches DotNet/dotnet/etc., not dotProject](../Screenshots/102-002_msf_search_dot_noise_tm6_afrocha.png)
+
+| Observation | Detail |
+|---------------|--------|
+| **What happened** | A **`search`** for **`dot`** (or similar) returns **DotNetNuke**, **dotnet**, **Oracle WebLogic**, **Struts**, etc. — substring matches — **not** the **dotProject** PHP app. |
+| **Expectation** | Metasploit **does not** list a dedicated **`dotproject`** exploit in normal builds; your **`Matching Modules`** table can still look “full” while having **nothing** for this target. |
+| **If you need a specific module by path** | `use exploit/linux/http/php_imap_open_rce` **or** `search imap_open type:exploit` — that module exists, but it **still** does not map to **dotProject** without a supported **target** + **`TARGETURI`**. |
+| **What to use instead** | **`searchsploit dotproject 2.1.6`**, **`searchsploit -x …`**, and the **RFI / SQLi** HTTP PoCs in this README — **not** `search dot`. |
+
 Evidence captures:
 
 | Screenshot | Command |
