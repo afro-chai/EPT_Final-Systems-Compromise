@@ -205,22 +205,51 @@ find / -name "proof.txt" 2>/dev/null
 | **Still useful** | **Server** header repeats Apache **2.2.21**, **PHP 5.3.8**, DAV, OpenSSL **1.0.0c**, etc. — same intel as other probes |
 | **404 body** | Standard Apache “Object not found!” — confirms **10.20.160.102** in `<address>` line on error pages |
 
+### Recon — Nikto **`http://10.20.160.102:80`** (validated)
+
+![Nikto — banner, redirect to /dotproject/, Shellshock printenv, EOL stack](../Screenshots/recon_nikto_102_http80_banner_redirect_tm6_afrocha.png)
+
+![Nikto — dotProject “interesting” paths, Shellshock test-cgi, scan stats + stamp](../Screenshots/recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Command** | `nikto -h "http://$RHOST_102"` (port **80**; optional **`-o ~/scans/nikto_102.htm -Format htm`**) |
+| **Redirect** | Confirms **`/` → `http://10.20.160.102/dotproject/`** |
+| **Shellshock (CVE-2014-6271 / 6278)** | Nikto reports **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** as **appearing vulnerable** — **not** the same as a bare **`/cgi-bin`** URL (404). Validate before Metasploit. |
+| **Other flags** | **TRACE** (XST class), PHP “sensitive query string” pattern (OSVDB-12184-style), **ETag** inode leak on **`/favicon.ico`**, **`/icons/`** indexing, **mod_negotiation** + MultiViews, missing **`X-Frame-Options`** / **`X-XSS-Protection`** / **`X-Content-Type-Options`**. |
+| **mod_ssl / CVE-2002-0082** | Nikto may surface **old advisory** text — **verify applicability** (banner heuristics can be noisy). |
+
+**dotProject paths Nikto highlighted** (check with **`curl -sI`** / session as needed):
+
+- `/dotproject/modules/files/index_table.php`
+- `/dotproject/modules/projects/addedit.php`
+- `/dotproject/modules/projects/view.php`
+- `/dotproject/modules/projects/vw_files.php`
+- `/dotproject/modules/tasks/addedit.php`
+- `/dotproject/modules/tasks/viewgantt.php`
+
 #### Do we have what we need for **Metasploit `TARGETURI`** (Shellshock / `apache_mod_cgi_bash_env_exec`)?
 
 | Need | Status |
 |------|--------|
-| **A real CGI script path** (e.g. `/cgi-bin/stats.cgi`) that returns **200** or executes via CGI | **Not yet** — only probed **`/cgi-bin`** → **404**. You cannot set `TARGETURI` to `/cgi-bin` alone; the module needs a **specific .cgi** (or equivalent) endpoint. |
-| **Proof the stack is old / CGI-capable** | **Yes** — banners on 404 still leak versions; worth continuing **directory brute-force** on `/cgi-bin/` and **`nikto` / `gobuster`** for `.cgi` files. |
+| **A specific CGI script path** | **Candidates from Nikto:** **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`**. Set **`TARGETURI`** to one **full path** (not `/cgi-bin` alone). Confirm behavior first. |
+| **Earlier `curl` on `/cgi-bin`** | **404** without a **script name** — does **not** rule out **`printenv`** / **`test-cgi`**. |
+| **Proof the stack is old / CGI-capable** | **Yes** — banners + Nikto **named** CGI endpoints. |
 
 **Next commands (examples):**
 
 ```bash
 curl -sik "http://$RHOST_102/cgi-bin/"
-nmap -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi "$RHOST_102"
+curl -sik "http://$RHOST_102/cgi-bin/printenv"
+curl -sik "http://$RHOST_102/cgi-bin/test-cgi"
+nmap -Pn -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/printenv "$RHOST_102"
+nmap -Pn -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test-cgi "$RHOST_102"
 gobuster dir -u "http://$RHOST_102/cgi-bin/" -w /usr/share/wordlists/dirb/common.txt -x cgi,pl,sh
 ```
 
-Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE lanes; keep Shellshock as **parallel** once you have a real script URL.
+**Metasploit (after validation):** `set TARGETURI /cgi-bin/printenv` **or** `/cgi-bin/test-cgi` — **one path per attempt**.
+
+Keep **`/dotproject/`** (**2.1.6**) as the **parallel** app lane; cross-check Nikto paths with **`searchsploit dotproject 2.1.6`** (**`vw_files.php`** overlaps some historic RFI write-ups — still **`searchsploit -x`** first).
 
 ### Recon — `nmap --script http-shellshock` (default test URI)
 
@@ -237,11 +266,13 @@ Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE
 - The **NSE script ran**, but **did not report Shellshock** for **`http-shellshock.uri=/cgi-bin/test.cgi`**.
 - Typical reasons: **`/cgi-bin/test.cgi` does not exist** (matches your earlier **404** on `/cgi-bin`), or the path is **not executed as CGI**, or the host is **not vulnerable** at that URL.
 - So this scan **does not** give you a working **`TARGETURI`** for Metasploit — it **rules out** (or fails to confirm) the **stock example** path only.
+- **Update:** Re-run NSE with Nikto’s URIs — **`http-shellshock.uri=/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** (see **Nikto** section above).
 
 **What to do next**
 
-1. **Brute-force real `.cgi` / `.pl` names** under `/cgi-bin/` (see `gobuster`/`ffuf` above), then re-run `http-shellshock` with **`http-shellshock.uri=/cgi-bin/<found>.cgi`** per hit.
-2. **Don’t stall on Shellshock** — your **302 → `/dotproject/`** line is still the best **documented** entry; keep that thread hot.
+1. **Retry `http-shellshock`** with **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** before guessing other names.
+2. **Brute-force additional `.cgi` / `.pl` names** under `/cgi-bin/` only if those fail (see `gobuster`/`ffuf` above).
+3. **Parallel:** **dotProject 2.1.6** app lane remains valid (Nikto module list + **`searchsploit`**).
 
 ### COA 2 — `searchsploit` options (Apache / PHP stack on `.102`)
 
@@ -249,7 +280,7 @@ Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE
 
 | Topic | What to set | Your `.102` status |
 |--------|-------------|-------------------|
-| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = path to a **single CGI executable** (e.g. `/cgi-bin/foo.cgi`). Not PHP under mod_php. | **No** working CGI path documented yet — still need a real **`.cgi`** (or equiv.) that runs. |
+| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = path to a **single CGI executable** (e.g. `/cgi-bin/foo.cgi`). Not PHP under mod_php. | **Candidates:** Nikto flagged **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** — **validate**, then try **`TARGETURI`** to the one that behaves as CGI. |
 | **Metasploit PHP / webapp modules** | Usually **`TARGETURI`** = **web root of the app**, often **`/dotproject/`** (trailing slash per module docs). Some modules add options for a vulnerable script name. | **Yes — use `/dotproject/`** as the **base path** once you pick a module whose prerequisites match your fingerprinted **dotProject** version. |
 | **Exploit-DB / `searchsploit` PHP scripts** | Often a **full URL** or **path under the app** passed on the command line; paths in the DB (e.g. `modules/public/calendar.php`) are **relative to the dotProject folder**. | Full URL pattern: **`http://10.20.160.102/dotproject/<path-from-exploit>`** — confirm the file exists with **`curl -I`** before running anything. |
 
