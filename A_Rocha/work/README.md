@@ -165,6 +165,17 @@ find / -name "proof.txt" 2>/dev/null
 
 **Takeaway:** Treat **`/dotproject/`** (with slash) as the stable path; the **301** is normal directory canonicalization, not a separate app.
 
+#### dotProject — ordered path forward (when exploits feel “stuck”)
+
+1. **Fingerprint the app version** — without this, `searchsploit dotproject` is only a menu. Save evidence with your stamp:
+   - `curl -s "http://$RHOST_102/dotproject/" | head -n 200` (login/footer/version text)
+   - `curl -sik "http://$RHOST_102/dotproject/index.php"` and grep for `dotProject`, `dPversion`, `version`
+   - Quick probes (often 404, cheap to try): `/dotproject/README`, `/dotproject/docs/`, `/dotproject/install/`, `/dotproject/includes/version.php` (names vary by release)
+2. **Match version to Exploit-DB** — `searchsploit -x php/webapps/…` only for rows whose **affected versions include yours**; note required auth (guest vs logged-in).
+3. **Prove the vulnerable path exists** — before running exploit code: `curl -sI "http://$RHOST_102/dotproject/<path-from-advisory>"` (expect **200** or the status the advisory assumes).
+4. **Access** — if the vuln needs a session: default/weak creds **only if the lab rubric allows**, else SQLi/auth-bypass rows that fit your version.
+5. **Parallel (same host)** — **`/phpmyadmin/`** (401): worth a careful read of enum + course policy; **WebDAV** / **`/icons/`** listing already noted; keep **`gobuster` on `/dotproject/`** for backup files (`*.bak`, `config.php`, etc.).
+
 ### Recon — `curl /cgi-bin` (404; headers + error body)
 
 ![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
