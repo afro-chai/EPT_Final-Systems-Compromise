@@ -136,6 +136,20 @@ find / -name "proof.txt" 2>/dev/null
 2. **App-led exploits** — dotProject + phpMyAdmin + Apache/PHP version strings drive `searchsploit` / MSF **in parallel** with CGI/Shellshock (you may get a shell faster via a known webapp CVE than generic CGI).
 3. **Shellshock** — still run `http-shellshock` against **discovered** CGI paths (not only `/cgi-bin/test.cgi`); enum may add paths on next passes.
 
+### Recon — `curl` to site root (`HTTP 302` → dotProject)
+
+![curl -sik http://RHOST_102/ — 302 Location, Server banner, X-Powered-By PHP](../Screenshots/recon_curl_root_302_dotproject_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Command** | `curl -sik "http://$RHOST_102/"` |
+| **Status** | **HTTP/1.1 302 Found** |
+| **Location** | `http://10.20.160.102/dotproject/` — **root URL redirects here**; treat **`/dotproject/`** as the real entry point (not bare `/`) |
+| **Server** | `Apache/2.2.21 (Unix) DAV/2` … `OpenSSL/1.0.0c` **`PHP/5.3.8`** … `mod_perl` … (same stack as prior scans) |
+| **X-Powered-By** | `PHP/5.3.8` |
+
+**Takeaway:** Enumerate and exploit **dotProject** first (version from HTML/login, `searchsploit dotproject`, default/weak creds per lab policy). Generic CGI/Shellshock remains parallel if you find executable scripts under `/cgi-bin/` or app-upload paths.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
