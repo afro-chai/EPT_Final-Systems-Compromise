@@ -106,6 +106,36 @@ find / -name "proof.txt" 2>/dev/null
 
 `.101` and `.100` sections are **unchanged** until you have equivalent nmap evidence for those.
 
+### Recon — `http-enum` + `http-headers` on **80 / 443** (validated)
+
+![nmap: http-enum + http-headers on 10.20.160.102 — phpMyAdmin, icons, dotProject cookie](../Screenshots/recon_nmap_102_http_enum_headers_tm6_afrocha.png)
+
+| Observation | Detail |
+|---------------|--------|
+| **Command** | `nmap -Pn -p 80,443,8080,8443 -sV --script http-enum,http-headers "$RHOST_102"` (~38 s) |
+| **80/tcp** | **open** — same Apache **2.2.21** / **PHP 5.3.8** / DAV stack as initial scan |
+| **443/tcp** | **open** — HTTPS (continue script/tls passes here; `https-redirect` script errored in this run—retry with `-d` or manual `curl -k` if needed) |
+| **8080 / 8443** | **filtered** — deprioritize until something else opens them |
+
+**`http-enum` highlights**
+
+| Path | Note |
+|------|------|
+| `/phpmyadmin/` | **401 Authorization Required** — creds or bypass research (lab rules) |
+| `/icons/` | **Directory listing** enabled — version banner leakage; low-hanging info disclosure |
+| `/webalizer/` | **401** — auth gate |
+
+**`http-headers` highlights**
+
+- **`Set-Cookie`**: `dotproject=…` with `path=/dotproject/` → treat **`/dotproject/`** as a primary app target (**dotProject** PHP app — search CVEs / `searchsploit dotproject` for matching major version after you read the page source/login).
+- **`X-Powered-By: PHP/5.3.8`** — confirms PHP surface for app bugs + any misconfigured upload paths.
+
+**Plan tweak after this scan**
+
+1. **Manual browse** — `curl -sik http://10.20.160.102/` , `curl -sik http://10.20.160.102/dotproject/`, `curl -sik http://10.20.160.102/phpmyadmin/` (expect 401 on phpMyAdmin).
+2. **App-led exploits** — dotProject + phpMyAdmin + Apache/PHP version strings drive `searchsploit` / MSF **in parallel** with CGI/Shellshock (you may get a shell faster via a known webapp CVE than generic CGI).
+3. **Shellshock** — still run `http-shellshock` against **discovered** CGI paths (not only `/cgi-bin/test.cgi`); enum may add paths on next passes.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
