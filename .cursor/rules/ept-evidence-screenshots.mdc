@@ -1,0 +1,14 @@
+---
+description: When the user attaches terminal or tool screenshots, commit them into the repo evidence folders.
+alwaysApply: true
+---
+
+# EPT evidence screenshots
+
+Whenever the user provides a screenshot (terminal, tool output, browser, etc.) in chat or as a saved workspace image:
+
+1. **Copy** the image into **`A_Rocha/Screenshots/`** (or a sensible subfolder such as **`A_Rocha/Screenshots/vulnerabilities/`** for scanner output), using a **stable, descriptive filename** (e.g. `recon_<tool>_<target>_tm6_afrocha.png`).
+2. If the image documents a step in the engagement runbook, **add or extend** the relevant section in **`A_Rocha/work/README.md`** (command, one-line result, link to the image). Do not wait for the user to ask to “add it to the repo.”
+3. **Commit and push** when the rest of the session’s changes are ready, unless the user only wanted a quick answer with no repo update.
+
+If the image file only exists under Cursor workspace storage (AppData), locate it by recent `image-*.png` names or the path the product shows, then copy into the repo path above.
