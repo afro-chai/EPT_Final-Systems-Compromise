@@ -150,6 +150,36 @@ find / -name "proof.txt" 2>/dev/null
 
 **Takeaway:** Enumerate and exploit **dotProject** first (version from HTML/login, `searchsploit dotproject`, default/weak creds per lab policy). Generic CGI/Shellshock remains parallel if you find executable scripts under `/cgi-bin/` or app-upload paths.
 
+### Recon — `curl /cgi-bin` (404; headers + error body)
+
+![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
+
+![404 body + echo TM6_afrocha; date](../Screenshots/recon_curl_cgi-bin_404_body_stamp_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Commands** | `curl -sik "http://$RHOST_102/cgi-bin"` (and follow-up showing HTML 404 + stamp) |
+| **HTTP status** | **404 Not Found** for this URL — **`/cgi-bin` is not a document** (no trailing slash / no default index) |
+| **Still useful** | **Server** header repeats Apache **2.2.21**, **PHP 5.3.8**, DAV, OpenSSL **1.0.0c**, etc. — same intel as other probes |
+| **404 body** | Standard Apache “Object not found!” — confirms **10.20.160.102** in `<address>` line on error pages |
+
+#### Do we have what we need for **Metasploit `TARGETURI`** (Shellshock / `apache_mod_cgi_bash_env_exec`)?
+
+| Need | Status |
+|------|--------|
+| **A real CGI script path** (e.g. `/cgi-bin/stats.cgi`) that returns **200** or executes via CGI | **Not yet** — only probed **`/cgi-bin`** → **404**. You cannot set `TARGETURI` to `/cgi-bin` alone; the module needs a **specific .cgi** (or equivalent) endpoint. |
+| **Proof the stack is old / CGI-capable** | **Yes** — banners on 404 still leak versions; worth continuing **directory brute-force** on `/cgi-bin/` and **`nikto` / `gobuster`** for `.cgi` files. |
+
+**Next commands (examples):**
+
+```bash
+curl -sik "http://$RHOST_102/cgi-bin/"
+nmap -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi "$RHOST_102"
+gobuster dir -u "http://$RHOST_102/cgi-bin/" -w /usr/share/wordlists/dirb/common.txt -x cgi,pl,sh
+```
+
+Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE lanes; keep Shellshock as **parallel** once you have a real script URL.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
