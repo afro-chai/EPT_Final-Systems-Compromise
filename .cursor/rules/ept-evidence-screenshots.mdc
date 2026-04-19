@@ -7,7 +7,7 @@ alwaysApply: true
 
 Whenever the user provides a screenshot (terminal, tool output, browser, etc.) in chat or as a saved workspace image:
 
-1. **Copy** the image into **`A_Rocha/Screenshots/`** (or a sensible subfolder such as **`A_Rocha/Screenshots/vulnerabilities/`** for scanner output), using a **stable, descriptive filename** (e.g. `recon_<tool>_<target>_tm6_afrocha.png`).
+1. **Copy** the image into **`A_Rocha/Screenshots/`** (or a sensible subfolder such as **`A_Rocha/Screenshots/vulnerabilities/`** for scanner output). **Name chronologically for host `10.20.160.102`:** **`102-NNN_short_description_tm6_afrocha.png`** — increment **`NNN`** (**`001`**, **`002`**, …) for each new capture **from now on** (first numbered file: **`102-001_…`**). Older files may keep legacy names; do not rename wholesale unless updating all README links in the same commit.
 2. If the image documents a step in the engagement runbook, **add or extend** the relevant section in **`A_Rocha/work/README.md`** (command, one-line result, link to the image). Do not wait for the user to ask to “add it to the repo.”
 3. **Commit and push** when the rest of the session’s changes are ready, unless the user only wanted a quick answer with no repo update.
 

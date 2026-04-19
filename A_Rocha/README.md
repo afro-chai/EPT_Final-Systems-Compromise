@@ -16,7 +16,7 @@ If you forgot how to open the lab environment:
 <li>Click <strong>Connect</strong> (the link on the right, highlighted in yellow in the screenshot) to launch the exercise and reach your assigned <strong>Kali</strong> VM.</li>
 </ol>
 
-<p><strong>This folder:</strong> use <a href="work/"><code>work/</code></a> for logs, notes, and rough output; use <a href="Screenshots/"><code>Screenshots/</code></a> for draft captures. Promote <strong>final</strong> evidence to the team folder <a href="../1_Screenshots/"><code>1_Screenshots/</code></a> when it is report-ready.</p>
+<p><strong>This folder:</strong> use <a href="work/"><code>work/</code></a> for logs, notes, and rough output; use <a href="Screenshots/"><code>Screenshots/</code></a> for draft captures. New evidence for <strong>10.20.160.102</strong> uses chronological names <code>102-001_…</code>, <code>102-002_…</code> (see <a href="work/README.md"><code>work/README.md</code></a>). Promote <strong>final</strong> evidence to the team folder <a href="../1_Screenshots/"><code>1_Screenshots/</code></a> when it is report-ready.</p>
 
 </td>
 <td width="38%" align="center">
