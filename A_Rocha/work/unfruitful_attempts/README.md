@@ -1,10 +1,26 @@
-# Unfruitful attempts — `10.20.160.102`
+# Unfruitful attempts (A_Rocha lab)
 
-Archived lanes and mistakes from the **plan of attack** phase. The **current** `.102` workflow lives in [`../README.md`](../README.md) (section **`10.20.160.102`**). Evidence images stay in [`../../Screenshots/`](../../Screenshots/).
+Archived **dead-end** lanes and operator mistakes. **Live plans:** [`../README.md`](../README.md). Evidence images: [`../../Screenshots/`](../../Screenshots/).
 
 ---
 
-## Shellshock / CGI / Metasploit (no shell via this lane)
+## `10.20.160.101` — null SMB / `enum4linux` (no go)
+
+**Context:** After **`nmap`** showed **SMB** and **CrackMapExec** identified **Win7 SP1** with **signing off**, unauthenticated listing of shares/users was attempted.
+
+| Attempt | Outcome |
+|---------|---------|
+| **`smbclient -L "//10.20.160.101" -N`** | “Anonymous login successful” but **no share list** — **SMB1 disabled — no workgroup available** |
+| **`crackmapexec smb 10.20.160.101 --shares -u '' -p ''`** | **`STATUS_ACCESS_DENIED`** |
+| **`enum4linux -a`** | **Workgroup JUPITER**, NetBIOS **CALLISTO** OK; then **`NT_STATUS_ACCESS_DENIED`** for domain SID, OS detail, users, share mapping, password policy (**polenum** / **NULL** attach), builtin/local/domain groups, RID cycling, printers |
+
+**Takeaway:** **Null session** enumeration is **locked down** on this image — need **credentials**, **MS17-010** / exploit path with lab approval, or **non-SMB** services (**HTTP** on **80**, **FTP** **21**, **RDP** **3389**, **MySQL** **3306**).
+
+Screenshots: [`101-003_enum4linux_access_denied_tm6_afrocha.png`](../../Screenshots/101-003_enum4linux_access_denied_tm6_afrocha.png), [`101-004_enum4linux_polenum_null_fail_tm6_afrocha.png`](../../Screenshots/101-004_enum4linux_polenum_null_fail_tm6_afrocha.png), [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png).
+
+---
+
+## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)
 
 **Hypothesis:** Nessus and stack banners suggested **Shellshock** via **`/cgi-bin/`**; **Nikto** also flagged **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`**.
 

@@ -104,67 +104,65 @@ Screenshot naming **`102-NNN_…`**: [parent README](../README.md) + [`.cursor` 
 
 ---
 
-## `10.20.160.101` — Windows 7 Ultimate
-
-### Specs & exposure (recap)
+## `10.20.160.101` — Windows 7 Ultimate (validated recon)
 
 | Field | Value |
 |-------|--------|
-| **MAC** | 00:50:56:86:4F:A2 |
-| **OS** | Windows 7 Ultimate |
-| **Open ports (from host table)** | 135, 139, 445, 49152–49222 range (RPC/SMB stack) |
-| **Nessus highlights** | **SSLv2/v3**, **RDP MiTM class** finding, **DROWN**, **Logjam**, **FTP** info, terminal services crypto not FIPS |
+| **NetBIOS name** | **CALLISTO** |
+| **Workgroup** | **JUPITER** |
+| **MAC** (from enum) | `00:50:56:86:4F:A2` |
+| **OS** | **Windows 7 Ultimate 7601 SP1 x64** (from **CrackMapExec**) |
+| **SMB signing** | **False** · **SMBv1: True** (CME) |
 
-### Vulnerabilities (brief)
+**Open services (from `nmap --top-ports 1000`):** **21** (FileZilla **ftpd**), **80** (**Apache 2.2.17 Win32**, **PHP 5.3.4**, mod_ssl, mod_perl), **135/139/445** (MS-RPC / SMB), **443** (HTTPS), **3306** (MySQL?), **3389** (RDP), **49152–49155** (RPC). **HTTP** is an additional attack surface vs SMB-only assumptions.
 
-- **SMB / Windows RPC** — enumerate shares, users, signing; pivot for creds or MS17-010 class checks if applicable to build.
-- **RDP (3389 likely)** — password spray / known weak creds in lab; “MiTM” plugin is a hygiene signal, not a remote exploit by itself.
-- **FTP** — anonymous or weak creds if enabled.
-- **SSL/TLS** — downgrade issues; usually supporting evidence, not primary shell path.
+**Null / anonymous SMB enum (this run):** **`smbclient -L -N`** reported anonymous login but **“SMB1 disabled — no workgroup available”** (no share list). **CrackMapExec** **`--shares -u '' -p ''`** → **`STATUS_ACCESS_DENIED`**. **`enum4linux -a`** retrieved **workgroup** and **nbtstat**, then **`NT_STATUS_ACCESS_DENIED`** on SID/OS/users/shares/groups/RID/printers — see **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)** (section **`.101` — null SMB**). Next step is **creds**, **MS17-010** check, or **HTTP** testing per rubric.
 
-### Plan of attack (commands)
-
-**1 — SMB & MS-RPC fingerprint.**
+### Plan of attack — commands (current)
 
 ```bash
 export RHOST=10.20.160.101
+echo TM6_afrocha; date
 
-nmap -Pn -sV -p 135,139,445,21,3389,5985 -sC "$RHOST" -oA ~/scans/nmap_101
-nmap -Pn -p445 --script smb-os-discovery,smb-security-mode,smb-enum-shares "$RHOST"
-```
+nmap -Pn -sV --top-ports 1000 "$RHOST" -oA ~/scans/nmap_101_top1000
+nmap -Pn -sV -p 135,139,445,21,80,443,3306,3389,49152-49155 -sC "$RHOST" -oA ~/scans/nmap_101_services
 
-**2 — SMB enum (no creds → then with creds).**
-
-```bash
 smbclient -L "//${RHOST}" -N
 crackmapexec smb "$RHOST" --shares -u '' -p ''
 enum4linux -a "$RHOST"
 ```
 
-**3 — MS17-010 style check (only if SMB says Win7 and lab allows).**
+**After you have a reason to test SMB vulns (lab allows):**
 
 ```bash
 nmap -Pn -p445 --script smb-vuln-ms17-010 "$RHOST"
-# Metasploit:
-# use auxiliary/scanner/smb/smb_ms17_010
-# set RHOSTS 10.20.160.101; run
+# msfconsole: use auxiliary/scanner/smb/smb_ms17_010 — set RHOSTS 10.20.160.101 — run
 ```
 
-**4 — RDP if 3389 open.**
+**HTTP on 80/443 (parallel lane):**
 
 ```bash
-nmap -Pn -p3389 -sV "$RHOST"
-# xfreerdp example (after you HAVE creds):
-# xfreerdp /v:"$RHOST" /u:<user> /p:<pass> /cert:ignore
+curl -sik "http://$RHOST/"
+nikto -h "http://$RHOST"
 ```
 
-**5 — FTP if open.**
+**RDP / FTP when ready:**
 
 ```bash
-nmap -Pn -p21 -sV -sC "$RHOST"
-ftp "$RHOST"
-# test anonymous: user anonymous, pass test@
+nmap -Pn -p3389,21 -sV -sC "$RHOST"
+# xfreerdp /v:$RHOST /u:<user> /p:<pass> /cert:ignore
+# ftp $RHOST  — test lab policy for anonymous
 ```
+
+### Evidence (`101-NNN_*` — chronological for this host)
+
+| # | File | What it shows |
+|---|------|----------------|
+| **101-001** | [`101-001_nmap_smbclient_cme_tm6_afrocha.png`](../Screenshots/101-001_nmap_smbclient_cme_tm6_afrocha.png) | `nmap --top-ports 1000`, **`smbclient -L -N`**, **CrackMapExec** null shares |
+| **101-002** | [`101-002_enum4linux_workgroup_netbios_tm6_afrocha.png`](../Screenshots/101-002_enum4linux_workgroup_netbios_tm6_afrocha.png) | **enum4linux** — **JUPITER**, **CALLISTO**, nbtstat |
+| **101-003** | [`101-003_enum4linux_access_denied_tm6_afrocha.png`](../Screenshots/101-003_enum4linux_access_denied_tm6_afrocha.png) | SID/OS/users/shares → **`ACCESS_DENIED`** |
+| **101-004** | [`101-004_enum4linux_polenum_null_fail_tm6_afrocha.png`](../Screenshots/101-004_enum4linux_polenum_null_fail_tm6_afrocha.png) | Password policy / **NULL** session attach fail |
+| **101-005** | [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png) | Groups / RID / printers → **denied** |
 
 ---
 
