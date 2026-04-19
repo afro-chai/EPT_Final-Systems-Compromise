@@ -82,6 +82,30 @@ find / -name "local.txt" 2>/dev/null
 find / -name "proof.txt" 2>/dev/null
 ```
 
+### Recon snapshot — `10.20.160.102` (validated)
+
+![nmap initial: 10.20.160.102 — Apache 2.2.21, PHP 5.3.8, 80/443 open](../Screenshots/recon_nmap_102_initial_tm6_afrocha.png)
+
+| Observation | Detail |
+|-------------|--------|
+| **Command** | `nmap -Pn -sS -sV -T4 "$RHOST_102" -oA ~/scans/nmap_102_initial` (your run) |
+| **Identity stamp** | `echo TM6_afrocha; date` — good habit; keep on evidence for the report |
+| **22/tcp** | **Closed** — skip SSH brute force for this target for now |
+| **80/tcp** | **Open** — **Apache httpd 2.2.21** (Unix), **PHP/5.3.8**, **WebDAV (DAV/2)**, **mod_ssl** + **OpenSSL 1.0.0c**, mod_perl / Perl 5.10.1 |
+| **443/tcp** | **Open** — treat as HTTPS; run TLS/http scripts after 80 |
+| **997 filtered** | Narrow external surface — focus on **web** paths |
+
+**Can we move forward with the plan of attack, or adjust?**
+
+**Move forward — same overall plan (web / CGI / Shellshock lane).** The live scan **confirms** a classic **outdated LAMP-style stack** on **80/443**, which matches the Nessus story (Shellshock, CGI, weak TLS). **Adjustments to prioritize next:**
+
+1. **Double down on HTTP enumeration** — discover real script paths before Metasploit `TARGETURI`: `curl -sik http://10.20.160.102/`, directory brute force on `/cgi-bin/` and common dirs, then `nmap -p80,443 --script http-enum,http-shellshock` with **discovered** URIs (not only `/cgi-bin/test.cgi`).
+2. **Add version-led exploit search** — `searchsploit apache 2.2.21`, `searchsploit php 5.3.8`, and Metasploit `search type:exploit apache` / `php` (lab-authorized only).
+3. **WebDAV** — if PROPFIND/PUT behavior is weak, note it as a separate finding path (upload / traversal) per rubric.
+4. **Do not** sink time into **SSH** on this host until web lanes are exhausted (port 22 closed).
+
+`.101` and `.100` sections are **unchanged** until you have equivalent nmap evidence for those.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
