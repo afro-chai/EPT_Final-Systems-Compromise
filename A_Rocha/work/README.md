@@ -201,6 +201,45 @@ Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE
 1. **Brute-force real `.cgi` / `.pl` names** under `/cgi-bin/` (see `gobuster`/`ffuf` above), then re-run `http-shellshock` with **`http-shellshock.uri=/cgi-bin/<found>.cgi`** per hit.
 2. **Don’t stall on Shellshock** — your **302 → `/dotproject/`** line is still the best **documented** entry; keep that thread hot.
 
+### COA 2 — `searchsploit` options (Apache / PHP stack on `.102`)
+
+Evidence captures:
+
+| Screenshot | Command |
+|------------|---------|
+| ![searchsploit apache 2.2.21](../Screenshots/searchsploit_apache_2_2_21_tm6_afrocha.png) | `searchsploit apache 2.2.21` |
+| ![searchsploit php 5.3.8](../Screenshots/searchsploit_php_5_3_8_tm6_afrocha.png) | `searchsploit php 5.3.8` |
+| ![searchsploit php extended](../Screenshots/searchsploit_php_5_3_8_extended_tm6_afrocha.png) | (long `php 5.3.8` result list) |
+| ![searchsploit php + stamp](../Screenshots/searchsploit_php_results_stamp_tm6_afrocha.png) | same search + `echo TM6_afrocha; date` |
+
+**Prioritized “options” (read each exploit’s header before running anything):**
+
+| Tier | Exploit-DB path (examples from your output) | Why it might matter |
+|------|----------------------------------------------|---------------------|
+| **A — try first** | `php/remote/29290.c`, `php/remote/29316.py` — **Apache + PHP &lt; 5.3.12 / &lt; 5.4.2 — cgi-bin / RCE** | Matches **PHP 5.3.8** + Apache; often needs **`php-cgi`**-style URL or specific **`cgi-bin`** routing — align with your enum. |
+| **A** | `php/remote/18836.py` — **PHP &lt; 5.3.12 / &lt; 5.4.2 — CGI argument injection** (CVE-2012-1823 class) | Famous **PHP-CGI** misconfiguration; requires vulnerable **`php-cgi`** invocation (not every mod_php site). |
+| **B — research / maybe** | `linux/webapps/42745.py` — **Apache &lt; 2.2.34 / &lt; 2.4.27 — OPTIONS memory leak** | Your server is **2.2.21** → **in range** for this class of issue; often **info leak / DoS**, not instant shell — still worth **reading** for class. |
+| **C — skip for shell** | `linux/dos/41769.txt` — **mod_setenvif integer overflow** | **DoS**, not reliable for proof-of-compromise in most labs. |
+| **Parallel (app)** | `searchsploit dotproject` (run if you haven’t) | Targets the **actual app** behind **`/dotproject/`** — often faster than generic Apache modules. |
+
+**Commands to drill into an option (safe prep):**
+
+```bash
+# Read exploit text / prerequisites (always do this first)
+searchsploit -x php/remote/18836.py
+searchsploit -x php/remote/29316.py
+searchsploit -x linux/webapps/42745.py
+
+# Copy exploit into cwd for editing
+searchsploit -m php/remote/18836.py
+searchsploit -m php/remote/29316.py
+
+# Metasploit may have modules for PHP-CGI / Apache — search after you know CVE
+msfconsole -q -x "search php cgi 2012; search apache 2.2; exit"
+```
+
+**Reality check:** Many rows in `searchsploit php 5.3.8` are **unrelated apps** (Drupal, WordPress plugins, etc.) — **ignore** unless that software is on **`.102`**. Your **confirmed** stack is **Apache 2.2.21 + PHP 5.3.8 + dotProject** — **Tier A + dotProject** stay in scope; everything else is noise until fingerprinted.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
