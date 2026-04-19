@@ -218,6 +218,16 @@ Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE
 
 ### COA 2 — `searchsploit` options (Apache / PHP stack on `.102`)
 
+#### `TARGETURI` for PHP / dotProject vs Shellshock (different meanings)
+
+| Topic | What to set | Your `.102` status |
+|--------|-------------|-------------------|
+| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = path to a **single CGI executable** (e.g. `/cgi-bin/foo.cgi`). Not PHP under mod_php. | **No** working CGI path documented yet — still need a real **`.cgi`** (or equiv.) that runs. |
+| **Metasploit PHP / webapp modules** | Usually **`TARGETURI`** = **web root of the app**, often **`/dotproject/`** (trailing slash per module docs). Some modules add options for a vulnerable script name. | **Yes — use `/dotproject/`** as the **base path** once you pick a module whose prerequisites match your fingerprinted **dotProject** version. |
+| **Exploit-DB / `searchsploit` PHP scripts** | Often a **full URL** or **path under the app** passed on the command line; paths in the DB (e.g. `modules/public/calendar.php`) are **relative to the dotProject folder**. | Full URL pattern: **`http://10.20.160.102/dotproject/<path-from-exploit>`** — confirm the file exists with **`curl -I`** before running anything. |
+
+**Summary:** You **do** have a stable **app base** for PHP work: **`/dotproject/`**. You **do not** reuse that string as Shellshock **`TARGETURI`** unless you later find a **CGI** endpoint; for dotProject, the interesting file paths come from **`searchsploit -x …`** and **`curl`** verification, not from the Shellshock module.
+
 Evidence captures:
 
 | Screenshot | Command |
@@ -226,6 +236,7 @@ Evidence captures:
 | ![searchsploit php 5.3.8](../Screenshots/searchsploit_php_5_3_8_tm6_afrocha.png) | `searchsploit php 5.3.8` |
 | ![searchsploit php extended](../Screenshots/searchsploit_php_5_3_8_extended_tm6_afrocha.png) | (long `php 5.3.8` result list) |
 | ![searchsploit php + stamp](../Screenshots/searchsploit_php_results_stamp_tm6_afrocha.png) | same search + `echo TM6_afrocha; date` |
+| ![searchsploit dotproject](../Screenshots/searchsploit_dotproject_tm6_afrocha.png) | `searchsploit dotproject` + `echo TM6_afrocha; date` |
 
 **Prioritized “options” (read each exploit’s header before running anything):**
 
@@ -235,7 +246,7 @@ Evidence captures:
 | **A** | `php/remote/18836.py` — **PHP &lt; 5.3.12 / &lt; 5.4.2 — CGI argument injection** (CVE-2012-1823 class) | Famous **PHP-CGI** misconfiguration; requires vulnerable **`php-cgi`** invocation (not every mod_php site). |
 | **B — research / maybe** | `linux/webapps/42745.py` — **Apache &lt; 2.2.34 / &lt; 2.4.27 — OPTIONS memory leak** | Your server is **2.2.21** → **in range** for this class of issue; often **info leak / DoS**, not instant shell — still worth **reading** for class. |
 | **C — skip for shell** | `linux/dos/41769.txt` — **mod_setenvif integer overflow** | **DoS**, not reliable for proof-of-compromise in most labs. |
-| **Parallel (app)** | `searchsploit dotproject` (run if you haven’t) | Targets the **actual app** behind **`/dotproject/`** — often faster than generic Apache modules. |
+| **Parallel (app)** | `searchsploit dotproject` — RFI/SQLi/XSS/auth-bypass rows under **`php/webapps/`** (see screenshot) | Pick entries that match **fingerprinted dotProject version**; paths like **`/modules/.../foo.php`** are under **`/dotproject/`** on this host. |
 
 **Commands to drill into an option (safe prep):**
 
@@ -251,6 +262,9 @@ searchsploit -m php/remote/29316.py
 
 # Metasploit may have modules for PHP-CGI / Apache — search after you know CVE
 msfconsole -q -x "search php cgi 2012; search apache 2.2; exit"
+
+# dotProject app exploits — read the matching Exploit-DB path, then mirror script paths under http://$RHOST_102/dotproject/
+searchsploit -x php/webapps/XXXXX.py
 ```
 
 **Reality check:** Many rows in `searchsploit php 5.3.8` are **unrelated apps** (Drupal, WordPress plugins, etc.) — **ignore** unless that software is on **`.102`**. Your **confirmed** stack is **Apache 2.2.21 + PHP 5.3.8 + dotProject** — **Tier A + dotProject** stay in scope; everything else is noise until fingerprinted.
