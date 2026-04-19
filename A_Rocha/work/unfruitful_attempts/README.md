@@ -53,6 +53,24 @@ run
 
 **Next lanes on `.101`:** **Apache/PHP on 80**, **FTP 21**, **RDP 3389**, **MySQL 3306**, **searchsploit** / **nikto** on web, or **SMB with credentials** if you obtain them.
 
+### MS17-010 — `ForceExploit true` (groom runs, **no shell**)
+
+| Screenshot | What it shows |
+|------------|----------------|
+| ![ForceExploit — check still not vulnerable, Win7 SP1, grooming starts](../../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png) | **`set ForceExploit true`** — scanner still reports **not vulnerable** / **Cannot reliably check**; module still fingerprints **Windows 7 Ultimate 7601 SP1** and begins **Groom Allocations** / **eb_trans2** traffic. |
+| ![Trans2 / pool grooming completes — no session](../../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png) | Full chain visible: **non-paged pool grooming**, **malformed Trans2**, **SMBv2 buffer** / **last fragment** — then **Receiving response from exploit packet** with **no** `[+] Meterpreter session opened`. |
+
+**What this tells us**
+
+| Observation | Interpretation |
+|-------------|----------------|
+| **`check` stays negative** even with **`ForceExploit`** | The auxiliary still does not believe MS17-010 is present — **forcing does not “un-patch”** the OS. |
+| **OS banner matches Win7 SP1** | Recon was right; the blocker is **not** “wrong target,” it is **exploitability** (patch level / SMB stack behavior). |
+| **Grooming + Trans2 packets send** | Network path and **445** are fine; the module is **actually running** the exploit logic. |
+| **No callback / no session** | Kernel pool corruption did not yield stable execution of the payload — **consistent with a patched MS17-010** (or other hardening), not a **payload port** issue. |
+
+**Conclusion:** Stop iterating **EternalBlue** on **`.101`** unless the instructor provides a **known-vulnerable** snapshot. Move to **HTTP / FTP / RDP / credentialed SMB**.
+
 ---
 
 ## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)

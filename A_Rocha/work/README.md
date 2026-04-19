@@ -150,7 +150,7 @@ check
 run
 ```
 
-If **`check`** reports **Host does NOT appear vulnerable** / **`STATUS_INVALID_HANDLE`** — the image is likely **MS17-010 patched** or the scanner cannot confirm exploitability. **Do not** rely on **`set ForceExploit true`** unless the lab explicitly allows it (risk of **crash** / unstable box). **Pivot:** **HTTP** (**80** Apache/PHP), **FTP**, **RDP**, **MySQL**, or **credentialed** SMB — see [`101-008`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png) + [`unfruitful_attempts`](unfruitful_attempts/README.md).
+If **`check`** reports **Host does NOT appear vulnerable** / **`STATUS_INVALID_HANDLE`** — the image is likely **MS17-010 patched** or the scanner cannot confirm exploitability. **`set ForceExploit true`** only **bypasses the abort**; if grooming finishes and there is still **no session**, treat **EternalBlue as dead** for this host — see [`101-008`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png), [`101-009`](../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png), [`101-010`](../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png). **Pivot:** **HTTP** (**80** Apache/PHP), **FTP**, **RDP**, **MySQL**, or **credentialed** SMB — [`unfruitful_attempts`](unfruitful_attempts/README.md).
 
 **HTTP on 80/443 (parallel lane):**
 
@@ -179,6 +179,8 @@ nmap -Pn -p3389,21 -sV -sC "$RHOST"
 | **101-006** | [`101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png`](../Screenshots/101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png) | MSF EternalBlue — **wrong IP octet** + **`RPORT 80`** (use **`.160.101`** + **`445`**) — see [`unfruitful_attempts`](unfruitful_attempts/README.md) |
 | **101-007** | [`101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png`](../Screenshots/101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png) | Same issue: **`RPORT 80`** → SMB **`IPC$`** error + **`not-vulnerable`** — **`set RPORT 445`** |
 | **101-008** | [`101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png) | **`RPORT 445`** OK — **`check`** still **not vulnerable** / **`run`** aborts — treat host as **patched**; pivot off SMB exploit |
+| **101-009** | [`101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png`](../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png) | **`ForceExploit true`** — **`check`** still negative; target IDs as **Win7 Ultimate 7601 SP1**; exploit starts **groom / eb_trans2** — not a fix for “not vulnerable” |
+| **101-010** | [`101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png`](../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png) | **Pool grooming** + **Trans2 exploit packet** completes → **no Meterpreter session** — confirms **ForceExploit** did not achieve code exec (patched / hardened) |
 
 ---
 
