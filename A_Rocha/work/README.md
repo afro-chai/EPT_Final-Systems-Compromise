@@ -180,6 +180,27 @@ gobuster dir -u "http://$RHOST_102/cgi-bin/" -w /usr/share/wordlists/dirb/common
 
 Until a **working CGI path** shows up, prioritize **`/dotproject/`** and app/CVE lanes; keep Shellshock as **parallel** once you have a real script URL.
 
+### Recon — `nmap --script http-shellshock` (default test URI)
+
+![nmap http-shellshock uri=/cgi-bin/test.cgi — 80/443 open, 8080 filtered, no script finding line](../Screenshots/recon_nmap_http_shellshock_test_cgi_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Command** | `nmap -Pn -p 80,443,8080 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi "$RHOST_102"` |
+| **Ports** | **80** open (http), **443** open (https), **8080** **filtered** (skip for now) |
+| **Shellshock script output** | **None** — Nmap did **not** print a `|_ http-shellshock:` result line under the ports |
+
+**What that means**
+
+- The **NSE script ran**, but **did not report Shellshock** for **`http-shellshock.uri=/cgi-bin/test.cgi`**.
+- Typical reasons: **`/cgi-bin/test.cgi` does not exist** (matches your earlier **404** on `/cgi-bin`), or the path is **not executed as CGI**, or the host is **not vulnerable** at that URL.
+- So this scan **does not** give you a working **`TARGETURI`** for Metasploit — it **rules out** (or fails to confirm) the **stock example** path only.
+
+**What to do next**
+
+1. **Brute-force real `.cgi` / `.pl` names** under `/cgi-bin/` (see `gobuster`/`ffuf` above), then re-run `http-shellshock` with **`http-shellshock.uri=/cgi-bin/<found>.cgi`** per hit.
+2. **Don’t stall on Shellshock** — your **302 → `/dotproject/`** line is still the best **documented** entry; keep that thread hot.
+
 ---
 
 ## `10.20.160.101` — Windows 7 Ultimate
