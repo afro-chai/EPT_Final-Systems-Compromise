@@ -113,10 +113,11 @@ Screenshot naming **`102-NNN_…`**: [parent README](../README.md) + [`.cursor` 
 | **MAC** (from enum) | `00:50:56:86:4F:A2` |
 | **OS** | **Windows 7 Ultimate 7601 SP1 x64** (from **CrackMapExec**) |
 | **SMB signing** | **False** · **SMBv1: True** (CME) |
+| **FTP anonymous** | **Allowed** — **`anonymous`** / **`test@`** (email-form password) → **`230 Logged on`** — FileZilla **0.9.37 beta** ([`101-011`](../Screenshots/101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png)) |
 
 **Open services (from `nmap --top-ports 1000`):** **21** (FileZilla **ftpd**), **80** (**Apache 2.2.17 Win32**, **PHP 5.3.4**, mod_ssl, mod_perl), **135/139/445** (MS-RPC / SMB), **443** (HTTPS), **3306** (MySQL?), **3389** (RDP), **49152–49155** (RPC). **HTTP** is an additional attack surface vs SMB-only assumptions.
 
-**Null / anonymous SMB enum (this run):** **`smbclient -L -N`** reported anonymous login but **“SMB1 disabled — no workgroup available”** (no share list). **CrackMapExec** **`--shares -u '' -p ''`** → **`STATUS_ACCESS_DENIED`**. **`enum4linux -a`** retrieved **workgroup** and **nbtstat**, then **`NT_STATUS_ACCESS_DENIED`** on SID/OS/users/shares/groups/RID/printers — see **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)** (section **`.101` — null SMB**). Next step is **creds**, **MS17-010** check, or **HTTP** testing per rubric.
+**Null / anonymous SMB enum (this run):** **`smbclient -L -N`** reported anonymous login but **“SMB1 disabled — no workgroup available”** (no share list). **CrackMapExec** **`--shares -u '' -p ''`** → **`STATUS_ACCESS_DENIED`**. **`enum4linux -a`** retrieved **workgroup** and **nbtstat**, then **`NT_STATUS_ACCESS_DENIED`** on SID/OS/users/shares/groups/RID/printers — see **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)** (section **`.101` — null SMB**). **Pivot:** **anonymous FTP** works (see table above); **MS17-010** dead end documented in [`unfruitful_attempts`](unfruitful_attempts/README.md); continue **HTTP** / **FTP listing & upload** (if permitted) per rubric.
 
 ### Plan of attack — commands (current)
 
@@ -159,12 +160,21 @@ curl -sik "http://$RHOST/"
 nikto -h "http://$RHOST"
 ```
 
-**RDP / FTP when ready:**
+**FTP — anonymous (validated):**
 
 ```bash
-nmap -Pn -p3389,21 -sV -sC "$RHOST"
+nmap -Pn -p21 -sV -sC "$RHOST"
+ftp "$RHOST"
+# Name: anonymous
+# Password: test@   # any email-shaped string is typical for anonymous FTP
+# → 230 Logged on — then: ls, cd xampp, get/put per lab rules
+```
+
+**RDP when ready:**
+
+```bash
+nmap -Pn -p3389 -sV -sC "$RHOST"
 # xfreerdp /v:$RHOST /u:<user> /p:<pass> /cert:ignore
-# ftp $RHOST  — test lab policy for anonymous
 ```
 
 ### Evidence (`101-NNN_*` — chronological for this host)
@@ -181,6 +191,7 @@ nmap -Pn -p3389,21 -sV -sC "$RHOST"
 | **101-008** | [`101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png) | **`RPORT 445`** OK — **`check`** still **not vulnerable** / **`run`** aborts — treat host as **patched**; pivot off SMB exploit |
 | **101-009** | [`101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png`](../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png) | **`ForceExploit true`** — **`check`** still negative; target IDs as **Win7 Ultimate 7601 SP1**; exploit starts **groom / eb_trans2** — not a fix for “not vulnerable” |
 | **101-010** | [`101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png`](../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png) | **Pool grooming** + **Trans2 exploit packet** completes → **no Meterpreter session** — confirms **ForceExploit** did not achieve code exec (patched / hardened) |
+| **101-011** | [`101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png`](../Screenshots/101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png) | **`ftp 10.20.160.101`** — **`anonymous`** / **`test@`** → **`230 Logged on`** — FileZilla **0.9.37 beta** (FTP access, not a shell) |
 
 ---
 
