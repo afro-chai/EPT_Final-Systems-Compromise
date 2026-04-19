@@ -41,6 +41,18 @@ run
 
 **Still seeing `10.20.160.101:80` and `SMB Login Error` / `IPC$` on port 80?** You left **`RPORT 80`** set — **`show options`** must show **`RPORT 445`**. Port **80** is not SMB; the module then fails SMB negotiation and may report **`not-vulnerable`** incorrectly. See also [`101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png`](../../Screenshots/101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png).
 
+### MS17-010 EternalBlue — `check` / `run` **not vulnerable** (correct `RPORT 445`)
+
+![EternalBlue — IPC$ connects but host does not appear vulnerable](../../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png)
+
+| Signal | Meaning |
+|--------|---------|
+| **`Connected to \\10.20.160.101\IPC$`** | SMB **445** is correct; you are talking to the real stack. |
+| **`STATUS_INVALID_HANDLE`** / **Host does NOT appear vulnerable** | Scanner believes **MS17-010 is not exploitable** — most often **KB4013389 / MS17-010 patch** applied, or **fingerprint** does not match a vulnerable build. |
+| **`run` → `not-vulnerable: Set ForceExploit to override`** | Module refuses to fire; **`ForceExploit`** may **blue-screen** or fail messily — use **only** if the **course** allows forcing against a **maybe-patched** VM. |
+
+**Next lanes on `.101`:** **Apache/PHP on 80**, **FTP 21**, **RDP 3389**, **MySQL 3306**, **searchsploit** / **nikto** on web, or **SMB with credentials** if you obtain them.
+
 ---
 
 ## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)
