@@ -150,6 +150,21 @@ find / -name "proof.txt" 2>/dev/null
 
 **Takeaway:** Enumerate and exploit **dotProject** first (version from HTML/login, `searchsploit dotproject`, default/weak creds per lab policy). Generic CGI/Shellshock remains parallel if you find executable scripts under `/cgi-bin/` or app-upload paths.
 
+### Recon — `curl` to `/dotproject` (`HTTP 301` → trailing slash)
+
+![curl -sik http://RHOST_102/dotproject — 301, Location /dotproject/, Server banner](../Screenshots/recon_curl_dotproject_301_tm6_afrocha.png)
+
+![HTTPS dotproject probes + identity stamp](../Screenshots/recon_curl_dotproject_https_attempts_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Commands** | `curl -sik "http://$RHOST_102/dotproject"` piped to `head -n 80`; follow-up `https://` attempts and `echo TM6_afrocha; date` |
+| **HTTP status** | **301 Moved Permanently** — **`/dotproject`** (no trailing slash) **canonicalizes** to **`http://10.20.160.102/dotproject/`** via **`Location:`** |
+| **Server** | Same banner as other probes: **Apache/2.2.21**, **PHP/5.3.8**, DAV, **OpenSSL 1.0.0c**, mod_perl, etc. |
+| **HTTPS** | For **443**, use explicit URL and verbose TLS if needed: `curl -vk "https://$RHOST_102/dotproject/"` (or path you are testing); **`-k`** only if the cert chain fails and the lab allows ignoring verification |
+
+**Takeaway:** Treat **`/dotproject/`** (with slash) as the stable path; the **301** is normal directory canonicalization, not a separate app.
+
 ### Recon — `curl /cgi-bin` (404; headers + error body)
 
 ![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
