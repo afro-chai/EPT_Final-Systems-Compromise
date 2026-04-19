@@ -43,12 +43,12 @@ The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete**
 | | **T_Amor** | `10.20.160.123` | 53, 80| | |
 | | **T_Amor** | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
 | | **T_Amor** | `10.20.160.112` | 22, 80| Complete | Complete |
-| Exploited| **H_Padilla** | `10.20.160.111` |80,443 | Complete | Complete |
+| Exploited| **H_Padilla** | `10.20.160.111` | 80,443 | Complete | Complete |
 | Exploited | **H_Padilla** | `10.20.160.110` | 135; 139; 445; 49152; 49153; 49154; 49179; 49187 | Complete | Complete |
 | Exploited | **H_Padilla** | `10.20.160.109` | 135; 139; 445; 49152; 49153; 49154; 49174; 49187 | Complete | Complete |
 | | **R_White** | `10.20.160.108` | 139; 445 | | |
-| | **R_White** | `10.20.160.107` | | | |
-| | **R_White** | `10.20.160.106` | 135; 445; 49152; 49153; 49154; 49180; 49182 | | |
+| | **H_Padilla** | `10.20.160.107` | 80;443 | Complete | Complete |
+| Exploited | **H_Padilla** | `10.20.160.106` | 135; 445; 5357; 8500 | Complete | Complete |
 | | **B_Drummond** | `10.20.160.105` | 135; 139; 445; 49152; 49153; 49154; 49178; 49189 | | |
 | | **B_Drummond** | `10.20.160.104` | 135; 49152; 49153; 49154; 49155; 49182 | | |
 | | **B_Drummond** | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
