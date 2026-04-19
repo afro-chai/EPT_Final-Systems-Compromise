@@ -176,6 +176,22 @@ find / -name "proof.txt" 2>/dev/null
 4. **Access** — if the vuln needs a session: default/weak creds **only if the lab rubric allows**, else SQLi/auth-bypass rows that fit your version.
 5. **Parallel (same host)** — **`/phpmyadmin/`** (401): worth a careful read of enum + course policy; **WebDAV** / **`/icons/`** listing already noted; keep **`gobuster` on `/dotproject/`** for backup files (`*.bak`, `config.php`, etc.).
 
+### Recon — `dotproject/index.php` (fingerprint — **Version 2.1.6**)
+
+![curl dotproject/index.php — 200, meta Version, PHP notice path disclosure](../Screenshots/recon_curl_dotproject_index_php_200_meta_tm6_afrocha.png)
+
+![login page HTML — Version 2.1.6, form posts to index.php](../Screenshots/recon_dotproject_login_html_2_1_6_tm6_afrocha.png)
+
+| Field | Value |
+|-------|--------|
+| **Command** | `curl -sik "http://$RHOST_102/dotproject/index.php"` (body trimmed with `head` as needed) |
+| **HTTP** | **200 OK** — login surface; **`Set-Cookie`** `dotproject=…` with **`path=/dotproject/`** |
+| **Version** | **`<meta name="Version" content="2.1.6" />`** and footer text **Version 2.1.6** — use this to filter **`searchsploit`** / CVEs (ignore unrelated major versions). |
+| **Path disclosure** | PHP **Notice** references **`/opt/lampp/htdocs/dotproject/install/do_install_db.php`** — docroot under **XAMPP/LAMPP** (`/opt/lampp/htdocs/`); useful for report narrative and any **LFI/RFI** path logic. |
+| **Login** | **`POST`** to **`index.php`** with **`username`**, **`password`**, hidden **`login`**, **`lostpass`**, **`redirect`** — password recovery toggles via **`lostpass`**. |
+
+**Exploit search (narrowed):** `searchsploit dotproject 2.1.6` then **`searchsploit -x`** on hits that list **2.1.6** (e.g. **baseDir RFI** class for that line). Re-check **`/dotproject/install/`** behavior only in a way your lab allows (some installs leave risky endpoints).
+
 ### Recon — `curl /cgi-bin` (404; headers + error body)
 
 ![curl -sik http://RHOST_102/cgi-bin — 404, Server banner](../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png)
