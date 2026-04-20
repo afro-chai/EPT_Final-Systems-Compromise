@@ -38,12 +38,12 @@ The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete**
 | Exploited? | Responsible | IP | Ports | Network mapping scan | Vulnerability scan |
 |------------|---------------|-----|-------|----------------------|--------------------|
 | | **J_Solis** | `10.20.160.126` | 22; 25; 110; 143 | | |
-| | **J_Solis** | `10.20.160.125` | 135; 139; 445; 49152; 49153; 49154; 49182; 49186 | | |
+| Exploited | **J_Solis** | `10.20.160.125` | 135; 139; 445; 49152; 49153; 49154; 49182; 49186 | | |
 | | **J_Solis** | `10.20.160.124` | 135; 139; 389; 445; 3268; 5722; 49152; 49153; 49154; 49155; 49158; 49179; 49193; 49199 | | |
 | | **T_Amor** | `10.20.160.123` | 53, 80| | |
 | | **T_Amor** | `10.20.160.122` | 135; 139; 445; 49152; 49153; 49154; 49155; 49211; 49212 | Complete | Complete |
-| | **T_Amor** | `10.20.160.112` | 22, 80| Complete | Complete |
-| Exploited| **H_Padilla** | `10.20.160.111` | 80,443 | Complete | Complete |
+| Exploited | **T_Amor** | `10.20.160.112` | 22, 80| Complete | Complete |
+| Exploited | **H_Padilla** | `10.20.160.111` | 80,443 | Complete | Complete |
 | Exploited | **H_Padilla** | `10.20.160.110` | 135; 139; 445; 49152; 49153; 49154; 49179; 49187 | Complete | Complete |
 | Exploited | **H_Padilla** | `10.20.160.109` | 135; 139; 445; 49152; 49153; 49154; 49174; 49187 | Complete | Complete |
 | | **R_White** | `10.20.160.108` | 139; 445 | | |
