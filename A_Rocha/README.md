@@ -160,6 +160,8 @@ Scans were run as **Final_Systems_Project**. Raw screenshots: [`Screenshots/vuln
 
 **Exploitation (lab):** **Metasploit `ms08_067_netapi`** yielded **Meterpreter** on **Windows XP SP3** (English) — **[`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png)**; post-ex (**ADRASTEA**, **JUPITER**, **SYSTEM**, cmd **`echo`**) — **[`100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png`](Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png)**; **`proof.txt`** on **Barbara’s Desktop** — **[`100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png`](Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png)**; **`cat` / `download`** in [`work/README.md`](work/README.md).
 
+**Proof readback (cmd):** Meterpreter has **no** **`type`** (use **`cat`** there, or **`shell`**). After **`shell`**, **`type "c:\Documents and Settings\Barbara\Desktop\proof.txt"`** prints the flag file; chain with **`& echo TM6_afrocha %date%`** for a dated operator stamp — **[`100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png`](Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png)** (session **4** in capture).
+
 ![Nessus: 10.20.160.100](Screenshots/vulnerabilities/nessus_10_20_160_100.png)
 
 ---

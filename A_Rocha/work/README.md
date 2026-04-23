@@ -332,6 +332,8 @@ msf5 > sessions -l
 
 **`cat` vs `download`:** **`cat <remote-path>`** only **displays** the file (Unix **`cat`**-style in Meterpreter). **`download <remote-path>`** pulls a copy onto **Kali** into the directory set by **`lcd`** (your local working directory for downloads). There is no **`get`** in classic Meterpreter for arbitrary files — use **`download`**. Paths with spaces: use **quotes** and **double backslashes** as in the block above.
 
+**Windows `type`:** **`type`** is **`cmd.exe`**, not Meterpreter — **`Unknown command: type`** until you **`shell`**, then e.g. **`type "c:\Documents and Settings\Barbara\Desktop\proof.txt"`**. See [`100-006`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png).
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -341,6 +343,7 @@ msf5 > sessions -l
 | **100-003** | [`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png) | **`ms08_067_netapi`** **`run`** — **XP SP3** (English) — **Meterpreter session** **`10.20.150.106:4444` → `10.20.160.100`** |
 | **100-004** | [`100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png) | **`sysinfo`** — **ADRASTEA** / **JUPITER** / **XP SP3** **x86**; **`getuid`** **SYSTEM**; **`shell`** → **`echo`** with **`%date% %time%`** (evidence stamp) |
 | **100-005** | [`100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png`](../Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png) | **`search -f proof.txt`** → **`c:\Documents and Settings\Barbara\Desktop\proof.txt`** (32 bytes) |
+| **100-006** | [`100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png) | **`type`** in Meterpreter → **`Unknown command`**; **`shell`** → **`type "…\proof.txt" & echo TM6_afrocha %date%`** — proof contents + stamp (**session 4**) |
 
 ---
 
