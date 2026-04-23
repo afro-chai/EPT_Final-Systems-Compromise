@@ -173,6 +173,16 @@ run
 
 If **`check`** reports **Host does NOT appear vulnerable** / **`STATUS_INVALID_HANDLE`** — the image is likely **MS17-010 patched** or the scanner cannot confirm exploitability. **`set ForceExploit true`** only **bypasses the abort**; if grooming finishes and there is still **no session**, treat **EternalBlue as dead** for this host — see [`101-008`](../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png), [`101-009`](../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png), [`101-010`](../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png). **Pivot:** **HTTP** (**80** Apache/PHP), **FTP**, **RDP**, **MySQL**, or **credentialed** SMB — [`unfruitful_attempts`](unfruitful_attempts/README.md).
 
+**`STATUS_TRUSTED_RELATIONSHIP_FAILURE` (`0xc000018d`) — not “untrusted user” vs `.100`:** That status is a **Windows domain / secure-channel** class error: the **workstation’s trust to its primary domain** (or SMB signing the **machine** account path) is broken or rejected — it is **not** Metasploit saying “use a user from **`10.20.160.100`** instead.” **ADRASTEA** (`.100`) being in workgroup **JUPITER** does **not** make its **local SAM** users magically **domain-logon** identities on **CALLISTO** (`.101`). **“Andrea”** (or any teammate sheet user) only helps if **`Andrea` is a valid account on `.101`** (or in the **same AD domain** **CALLISTO** joins) **and** you supply **`SMBUser` / `SMBPass` / `SMBDomain`** (or **`.`** / workgroup name) so **`IPC$`** accepts the session — and you may **still** see **`0xc000018d`** if the **host’s domain trust** itself is broken (lab image quirk), unrelated to which password you type. **Try credentialed SMB** with real **`.101`** creds from the sheet / cracked **`hashdump`** first; if the error persists, **stop betting on EternalBlue** and use **RDP / HTTP / FTP** lanes. See [`101-017`](../Screenshots/101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png).
+
+```text
+# Example: only if ROE + you have a real .101 account (sheet / cracked reuse):
+set SMBUser <user>
+set SMBPass <password>
+set SMBDomain .          # or WORKGROUP / actual short domain name from enum
+check
+```
+
 **HTTP on 80/443 (parallel lane):**
 
 ```bash
@@ -232,6 +242,7 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **101-014** | [`101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png`](../Screenshots/101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png) | Browser **HTTP Basic** sign-in for **`10.20.160.101`** (realm **FORBIDDEN AREA** / path **`/forbidden/`**) |
 | **101-015** | [`101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png`](../Screenshots/101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png) | **403** — XAMPP “**only from local network**”; names **`httpd-xampp.conf`** (server-side Apache config, not an HTTP upload target) |
 | **101-016** | [`101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png`](../Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png) | **`curl -sik`** → **302** **`Location: …/xampp/`** (Apache **2.2.17** Win32, **PHP 5.3.x**); **`nmap -Pn -p3389 -sV -sC`** → **RDP** open + **`ssl-date`** / **clock-skew** |
+| **101-017** | [`101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png`](../Screenshots/101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png) | **`ms17_010_eternalblue` `run`** — **`IPC$`** login error → **`RubySMB … 0xc000018d STATUS_TRUSTED_RELATIONSHIP_FAILURE`** — **no session** |
 
 ---
 
