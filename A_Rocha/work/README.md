@@ -132,7 +132,8 @@ Screenshot naming **`102-NNN_…`**: [parent README](../README.md) + [`.cursor` 
 | **MAC** (from enum) | `00:50:56:86:4F:A2` |
 | **OS** | **Windows 7 Ultimate 7601 SP1 x64** (from **CrackMapExec**) |
 | **SMB signing** | **False** · **SMBv1: True** (CME) |
-| **FTP anonymous** | **Allowed** — **`anonymous`** / **`test@`** (email-form password) → **`230 Logged on`** — FileZilla **0.9.37 beta** ([`101-011`](../Screenshots/101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png)) |
+| **FTP anonymous** | **Allowed** — **`anonymous`** / **`test@`** (email-form password) → **`230 Logged on`** — FileZilla **0.9.37 beta** ([`101-011`](../Screenshots/101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png)). **`/forbidden`** on FTP lists **`.htaccess`**, **`.htpasswd`**, **`readme.auth_remote.txt`** — pull copies with **`lcd`**, **`get`** ([`101-013`](../Screenshots/101-013_ftp_forbidden_get_htaccess_tm6_afrocha.png)); **`cat`** looted **`.htpasswd`** locally ([`101-012`](../Screenshots/101-012_loot_cat_htpasswd_tm6_afrocha.png)). |
+| **HTTP `/forbidden/`** | After **Basic Auth** with creds from **`.htpasswd`** ([`101-014`](../Screenshots/101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png)), browser hits **XAMPP “local network only”** **403**; error text names **`httpd-xampp.conf`** on the **server filesystem** ([`101-015`](../Screenshots/101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png)) — **not** a URL you can edit with **HTTP POST**; changing it needs **host access** (RDP/shell) or a **separate** misconfiguration (e.g. writable FTP/SMB into **`conf`**, unlikely here). |
 
 **Open services (from `nmap --top-ports 1000`):** **21** (FileZilla **ftpd**), **80** (**Apache 2.2.17 Win32**, **PHP 5.3.4**, mod_ssl, mod_perl), **135/139/445** (MS-RPC / SMB), **443** (HTTPS), **3306** (MySQL?), **3389** (RDP), **49152–49155** (RPC). **HTTP** is an additional attack surface vs SMB-only assumptions.
 
@@ -186,7 +187,15 @@ nmap -Pn -p21 -sV -sC "$RHOST"
 ftp "$RHOST"
 # Name: anonymous
 # Password: test@   # any email-shaped string is typical for anonymous FTP
-# → 230 Logged on — then: ls, cd xampp, get/put per lab rules
+# → 230 Logged on — then e.g.:
+#   lcd ~/loot/101
+#   passive
+#   binary
+#   ls
+#   cd forbidden    # .htaccess / .htpasswd / readme — get per lab ROE
+#   get .htaccess
+#   get .htpasswd
+# Other dirs: ls, cd …, get/put only if the server allows writes (anonymous is often read-only).
 ```
 
 **RDP when ready:**
@@ -211,6 +220,10 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 | **101-009** | [`101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png`](../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png) | **`ForceExploit true`** — **`check`** still negative; target IDs as **Win7 Ultimate 7601 SP1**; exploit starts **groom / eb_trans2** — not a fix for “not vulnerable” |
 | **101-010** | [`101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png`](../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png) | **Pool grooming** + **Trans2 exploit packet** completes → **no Meterpreter session** — confirms **ForceExploit** did not achieve code exec (patched / hardened) |
 | **101-011** | [`101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png`](../Screenshots/101-011_ftp_anonymous_230_logged_on_tm6_afrocha.png) | **`ftp 10.20.160.101`** — **`anonymous`** / **`test@`** → **`230 Logged on`** — FileZilla **0.9.37 beta** (FTP access, not a shell) |
+| **101-012** | [`101-012_loot_cat_htpasswd_tm6_afrocha.png`](../Screenshots/101-012_loot_cat_htpasswd_tm6_afrocha.png) | **`cat ~/loot/101/.htpasswd`** after **`get`** — confirms **Basic Auth** material for **`/forbidden/`** (keep real creds out of git if you re-screenshot with redaction) |
+| **101-013** | [`101-013_ftp_forbidden_get_htaccess_tm6_afrocha.png`](../Screenshots/101-013_ftp_forbidden_get_htaccess_tm6_afrocha.png) | FTP **`cd forbidden`** — **`get .htaccess`** → **`226 Transfer OK`**; lists **`.htpasswd`**, **`readme.auth_remote.txt`** |
+| **101-014** | [`101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png`](../Screenshots/101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png) | Browser **HTTP Basic** sign-in for **`10.20.160.101`** (realm **FORBIDDEN AREA** / path **`/forbidden/`**) |
+| **101-015** | [`101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png`](../Screenshots/101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png) | **403** — XAMPP “**only from local network**”; names **`httpd-xampp.conf`** (server-side Apache config, not an HTTP upload target) |
 
 ---
 
