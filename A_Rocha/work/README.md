@@ -177,8 +177,13 @@ If **`check`** reports **Host does NOT appear vulnerable** / **`STATUS_INVALID_H
 
 ```bash
 curl -sik "http://$RHOST/"
+# Nikto (port 80): scan from site root; follow up on XAMPP if curl shows Location → /xampp/
 nikto -h "http://$RHOST"
+nikto -h "http://${RHOST}/xampp/"
+# HTTPS on 443 (if open): nikto -h "https://$RHOST" -ssl
 ```
+
+**Nikto one-liners for `.101`:** `nikto -h http://10.20.160.101` and `nikto -h http://10.20.160.101/xampp/` (second pass hits the **302** landing path from **`curl -si`**). Add **`-maxtime 30m`** (or similar) if you need a bounded run.
 
 **FTP — anonymous (validated):**
 
@@ -205,6 +210,8 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 # xfreerdp /v:$RHOST /u:<user> /p:<pass> /cert:ignore
 ```
 
+Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **clock-skew** — [`101-016`](../Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png).
+
 ### Evidence (`101-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -224,6 +231,7 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 | **101-013** | [`101-013_ftp_forbidden_get_htaccess_tm6_afrocha.png`](../Screenshots/101-013_ftp_forbidden_get_htaccess_tm6_afrocha.png) | FTP **`cd forbidden`** — **`get .htaccess`** → **`226 Transfer OK`**; lists **`.htpasswd`**, **`readme.auth_remote.txt`** |
 | **101-014** | [`101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png`](../Screenshots/101-014_http_basic_auth_forbidden_prompt_tm6_afrocha.png) | Browser **HTTP Basic** sign-in for **`10.20.160.101`** (realm **FORBIDDEN AREA** / path **`/forbidden/`**) |
 | **101-015** | [`101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png`](../Screenshots/101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png) | **403** — XAMPP “**only from local network**”; names **`httpd-xampp.conf`** (server-side Apache config, not an HTTP upload target) |
+| **101-016** | [`101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png`](../Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png) | **`curl -sik`** → **302** **`Location: …/xampp/`** (Apache **2.2.17** Win32, **PHP 5.3.x**); **`nmap -Pn -p3389 -sV -sC`** → **RDP** open + **`ssl-date`** / **clock-skew** |
 
 ---
 
