@@ -162,33 +162,9 @@ Scans were run as **Final_Systems_Project**. Raw screenshots: [`Screenshots/vuln
 
 **What we learned:** (1) **Match the exploit to the OS** — **`ms08_067`** for **XP SMB**; do not drive **`ms17_010_eternalblue`** with a **Win7 x64** target on **XP**. (2) **Failed null enum ≠ “host dead”** — unauthenticated **SMB** exploits can still land if the build is vulnerable. (3) **Meterpreter ≠ `cmd.exe`** — **`echo`/`type`** behavior differs; paths must be **`Documents and Settings`** (**and**, not **`&`**). (4) **SYSTEM ⇒ `hashdump`** for **local cred material** to support **pivot** (e.g. toward **`.101`** in **JUPITER**), subject to **ROE** and team handling of secrets.
 
-Full command playbook: [`work/README.md`](work/README.md) → **`10.20.160.100`**.
-
-#### Evidence screenshots (`10.20.160.100` — inline on GitHub)
-
-![100-001 enum4linux null SMB blocked](Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)
-*100-001 — `enum4linux -a`: no NetBIOS / null session not allowed.*
-
-![100-002 MSF MS17-010 check noise](Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png)
-*100-002 — EternalBlue `check` noise (`:135` timeout); not the reliable XP lane.*
-
-![100-003 ms08_067 Meterpreter session](Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png)
-*100-003 — `ms08_067_netapi` + reverse handler → Meterpreter.*
-
-![100-004 sysinfo SYSTEM echo stamp](Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png)
-*100-004 — `sysinfo` / `getuid` (ADRASTEA, JUPITER, SYSTEM) + cmd `echo` stamp.*
-
-![100-005 search proof.txt](Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png)
-*100-005 — `search -f proof.txt` → Barbara’s Desktop.*
-
-![100-006 shell type proof + stamp](Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png)
-*100-006 — `type` unknown in Meterpreter; `shell` + `type` proof + dated tag.*
-
-![100-007 hashdump SAM](Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png)
-*100-007 — `hashdump` (local SAM; treat like secrets).*
+Full command playbook: [`work/README.md`](work/README.md) → **`10.20.160.100`**. Evidence PNGs (**`100-001`…`100-007`**) are linked in the paragraphs above (same files under [`Screenshots/`](Screenshots/)).
 
 ![Nessus: 10.20.160.100](Screenshots/vulnerabilities/nessus_10_20_160_100.png)
-*Nessus export — `10.20.160.100`.*
 
 ---
 
