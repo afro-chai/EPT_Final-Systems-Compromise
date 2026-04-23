@@ -340,6 +340,27 @@ msf5 > sessions -l
 
 ![100-008 — ms08_067 session 4 through proof.txt on 10.20.160.100](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png)
 
+**Reachability from ADRASTEA (`ping` — lateral prep):** From **`meterpreter > shell`**, **`ping`** shows **`.101`** and **`.102`** reply with **0% loss** — you have **basic L3 path** from **`.100`** to the other lab targets ([`100-009`](../Screenshots/100-009_shell_ping_101_102_ttl_tm6_afrocha.png)). **TTL** in the capture (**128** vs **64**) is a rough hint: **Windows** often starts near **128**, many **Linux** stacks near **64** — aligns with **Win7 (`.101`)** vs **Linux (`.102`)** in your map.
+
+**Thoughts:** **Ping proves “can send ICMP echo and get a reply,”** not “I can log in” or “every TCP port is open.” It **does** mean **routing/firewall** is not totally blocking the victim from talking to those IPs, so **pivoting is plausible** if you bring **credentials**, **exploits**, or **services** (SMB/RDP/FTP/HTTP) the same way you would from **Kali** — except now you can also **relay traffic through** **ADRASTEA** (see below).
+
+**How to move forward (ordered):**
+
+1. **Cred work from `hashdump`** — Crack or rule out **Barbara** / **Administrator** (lab ROE); try **plaintext** on **`.101`** (**SMB**, **RDP**, **FTP**, **HTTP Basic**) and **`.102`** (**SSH**, **web login**). See [`credential_pivot_A_Rocha_hosts.md`](credential_pivot_A_Rocha_hosts.md).
+2. **From Kali (simplest)** — If a password works, **`crackmapexec smb 10.20.160.101 -u … -p …`**, **`smbclient`**, **`xfreerdp`**, **`curl`** / **`ftp`** — same as before; you already know the hosts answer on the wire.
+3. **Through the Meterpreter session (pivot)** — **`background`** the session, then **`use post/multi/manage/autoroute`**, **`set SESSION …`**, **`run`** to add **`10.20.160.0/24`** (or tighter) via the **compromised host**; add **`auxiliary/server/socks_proxy`** (or **SOCKS4a**) and point **`proxychains`** / **MSF** scanners **through** **ADRASTEA** so **source IP** of probes is **`.100`** (useful if only **internal** paths trust **JUPITER** machines).
+4. **Stay in scope** — Only **`.100` / `.101` / `.102`** (or whatever the sheet lists); document **failures** in [`unfruitful_attempts/README.md`](unfruitful_attempts/README.md).
+
+```text
+meterpreter > shell
+ping -n 2 10.20.160.101
+ping -n 2 10.20.160.102
+echo YOURTAG %date% %time%
+exit
+```
+
+![100-009 — ping .101 and .102 from ADRASTEA shell](../Screenshots/100-009_shell_ping_101_102_ttl_tm6_afrocha.png)
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -352,13 +373,14 @@ msf5 > sessions -l
 | **100-006** | [`100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png) | **`type`** in Meterpreter → **`Unknown command`**; **`shell`** → **`type "…\proof.txt" & echo TM6_afrocha %date%`** — proof contents + stamp (**session 4**) |
 | **100-007** | [`100-007_meterpreter_hashdump_sam_tm6_afrocha.png`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png) | **`hashdump`** — **SAM** lines (**Administrator**, **Barbara**, **Guest**, **HelpAssistant**, **SUPPORT_388945a0**, …) as **SYSTEM** on **ADRASTEA** |
 | **100-008** | [`100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png`](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png) | **`ms08_067`** **`run`** → **session 4** — **`sysinfo`** (**ADRASTEA**, **JUPITER**) / **`getuid`** **SYSTEM** / **`type`** in Meterpreter fails / **`shell`** + **`type`** **`Barbara\Desktop\proof.txt`** + **`echo TM6_afrocha %date%`** |
+| **100-009** | [`100-009_shell_ping_101_102_ttl_tm6_afrocha.png`](../Screenshots/100-009_shell_ping_101_102_ttl_tm6_afrocha.png) | **`shell`** on **ADRASTEA** — **`ping`** **`.101`** / **`.102`** — **0% loss**; **TTL ~128** vs **~64** (Windows vs Linux hint) |
 
 ---
 
 ## Ordering suggestion (one operator on KALI6)
 
 1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
-2. **.100** — **XP** is still high value, but **run `nmap` on `139,445,3389` before `enum4linux`**: if **null SMB** stays dead, use **creds / RDP / vuln `check`** rather than repeating anonymous enum.  
+2. **.100** — **XP** is still high value, but **run `nmap` on `139,445,3389` before `enum4linux`**: if **null SMB** stays dead, use **creds / RDP / vuln `check`** rather than repeating anonymous enum. After **shell**, **`ping`** **`.101` / `.102`** confirms **L3** reach for **pivot** — see **`.100`** **`ping`** / **`autoroute`** notes above.  
 3. **.101** — **Win7** harder target; use creds or results from **.100** lateral moves if the scenario allows.
 
 Document **what you ran**, **what failed** ([`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)), and **screenshots** under [`../Screenshots/`](../Screenshots/) before promoting to team [`../../1_Screenshots/`](../../1_Screenshots/).
