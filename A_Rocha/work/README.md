@@ -2,6 +2,8 @@
 
 Session transcripts, command snippets, loot exports, and rough notes. Keep **passwords and live tokens out of git**—paste redacted copies here if you need a paper trail.
 
+**Team cred pivot (`.100` / `.101` / `.102`):** committed plan → [`credential_pivot_A_Rocha_hosts.md`](credential_pivot_A_Rocha_hosts.md). **Full teammate dump (gitignored):** [`credentials_handoff_SECRETS.md`](credentials_handoff_SECRETS.md) — copy from teammate / sheet; **never** `git add` that file (listed in repo [`.gitignore`](../../.gitignore)).
+
 ---
 
 # Plan of attack (A_Rocha IPs)
