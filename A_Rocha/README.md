@@ -156,6 +156,8 @@ Scans were run as **Final_Systems_Project**. Raw screenshots: [`Screenshots/vuln
 
 **Attack-surface takeaway:** End-of-life **Windows XP** plus **SMB** and **RDP**-related findings are the main story for validation in the lab.
 
+**Live check (Kali):** **`enum4linux -a`** against **`.100`** returned **no NetBIOS reply** and **rejected null sessions** — evidence **[`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)**; runbook and plan updates are in [`work/README.md`](work/README.md) under **`10.20.160.100`**.
+
 ![Nessus: 10.20.160.100](Screenshots/vulnerabilities/nessus_10_20_160_100.png)
 
 ---

@@ -236,31 +236,37 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 | **OS** | Windows XP SP2/SP3 / embedded variant |
 | **Open ports (from host table)** | **139, 445** (SMB), RDP likely given Nessus |
 | **Nessus highlights** | **Unsupported XP** (critical), **SMB** issues, **RDP** MiTM class, many **info** SMB/plugin rows |
+| **SMB null enum (this run)** | **`enum4linux -a`** — **no NetBIOS reply** from **`10.20.160.100`**; **`Server doesn't allow session using username '', password ''`** — remainder of tests aborted ([`100-001`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)). Do **not** assume **null SMB** works until **`nmap`** shows **137/139/445** reachable and **`smbclient -L -N`** / **CME** agree. |
 
 ### Vulnerabilities (brief)
 
 - **EOL OS** — huge unpatched surface; **SMBv1** era bugs (MS08-067, MS17-010) *may* apply depending on service pack and lab image.
 - **RDP** — weak creds or known lab passwords.
-- **SMB** — null session, share enumeration, pipe abuse per lab tooling.
+- **SMB** — share enumeration and pipe abuse **with creds** or after a **positive vuln check**; **null session** is **not** confirmed on this host (see table above).
 
 ### Plan of attack (commands)
 
-**1 — Fast SMB + vuln scripts.**
+**1 — Confirm reachability and SMB surface (before burning time on enum4linux).**
 
 ```bash
 export RHOST=10.20.160.100
+echo TM6_afrocha; date
 
 nmap -Pn -sV -p139,445,3389 -sC "$RHOST" -oA ~/scans/nmap_100
 nmap -Pn -p445 --script smb-os-discovery,smb-vuln-ms17-010,smb-vuln-ms08-067 "$RHOST"
 ```
 
-**2 — Enum4linux / smbclient.**
+If **445 filtered/closed** or **no SMB banner**, fix **routing/LHOST lab net** first; **`enum4linux`** “**No reply**” often matches **no path to NetBIOS** or **service off**, not just “null disabled.”
+
+**2 — Null SMB enum (only if step 1 shows SMB open).**
 
 ```bash
 enum4linux -a "$RHOST"
 smbclient -L "//${RHOST}" -N
 rpcclient -U "" -N "$RHOST"
 ```
+
+If you reproduce **`100-001`** (null denied / no nbtstat), **pivot plan:** credentialed **`smbclient` / CME / rpcclient`** from [`credential_pivot_A_Rocha_hosts.md`](credential_pivot_A_Rocha_hosts.md), **RDP** when **`3389`** is open, or **MSF `smb_version` + exploit `check`** (lab ROE) without relying on anonymous share lists.
 
 **3 — Metasploit lanes (pick what matches scan; do not blindly exploit).**
 
@@ -287,12 +293,18 @@ C:\> hostname && whoami
 C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
 ```
 
+### Evidence (`100-NNN_*` — chronological for this host)
+
+| # | File | What it shows |
+|---|------|----------------|
+| **100-001** | [`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png) | **`enum4linux -a 10.20.160.100`** — **no nbtstat reply**, **null** **`''`/`''`** session **not allowed** — standard anonymous SMB enum **blocked** on this run |
+
 ---
 
 ## Ordering suggestion (one operator on KALI6)
 
 1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
-2. **.100** — **XP/SMB** classics; do while you have Metasploit workspace warm.  
+2. **.100** — **XP** is still high value, but **run `nmap` on `139,445,3389` before `enum4linux`**: if **null SMB** stays dead, use **creds / RDP / vuln `check`** rather than repeating anonymous enum.  
 3. **.101** — **Win7** harder target; use creds or results from **.100** lateral moves if the scenario allows.
 
 Document **what you ran**, **what failed** ([`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)), and **screenshots** under [`../Screenshots/`](../Screenshots/) before promoting to team [`../../1_Screenshots/`](../../1_Screenshots/).
