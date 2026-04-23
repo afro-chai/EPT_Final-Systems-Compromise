@@ -11,7 +11,7 @@ From **Final Presentation.pdf** (team narrative):
 | **GANYMEDE (.125)** | **Product ≠ banner** (WeOnlyDo vs FreeSSHd) → always fingerprint **service**, not substring of the banner. |
 | **GANYMEDE post-ex** | **SYSTEM** on a **JUPITER** member → **LSA / SAM / MSCache** artifacts → **password reuse** and **hash** cracking against **other members** (e.g. **CALLISTO**). |
 | **METIS / THEBE** | **Domain controllers** expose **DefaultPassword**-style material and **NTLM** — useful for **crack / spray** against **workstation SMB & RDP**. |
-| **XENA (.111)** | **Tomcat / Bitnami manager** creds → try **HTTP Basic** / **/manager/html`** on **any** host:8080 in the lab (your **.102** stack is **LAMPP**, not Bitnami—still worth a **30-second curl**). |
+| **XENA (.111)** | **Tomcat / Bitnami manager** creds → try **HTTP Basic** / **`/manager/html`** on **any** host **:8080** in the lab (your **.102** stack is **LAMPP**, not Bitnami—still worth a **30-second curl**). |
 
 ## Prioritized attempts against **your** three IPs
 
