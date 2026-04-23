@@ -338,6 +338,8 @@ msf5 > sessions -l
 
 **End-to-end (session 4):** Single capture from **`run`** through **`sysinfo` / `getuid`**, **`type`** failing in Meterpreter, **`shell`**, and **`type`** on **`Barbara\Desktop\proof.txt`** with operator stamp — [`100-008`](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png).
 
+![100-008 — ms08_067 session 4 through proof.txt on 10.20.160.100](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png)
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
