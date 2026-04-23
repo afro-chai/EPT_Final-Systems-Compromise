@@ -158,6 +158,8 @@ Scans were run as **Final_Systems_Project**. Raw screenshots: [`Screenshots/vuln
 
 **Live check (Kali):** **`enum4linux -a`** against **`.100`** returned **no NetBIOS reply** and **rejected null sessions** — evidence **[`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)**; runbook and plan updates are in [`work/README.md`](work/README.md) under **`10.20.160.100`**.
 
+**Exploitation (lab):** **Metasploit `ms08_067_netapi`** yielded **Meterpreter** on **Windows XP SP3** (English) — **[`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png)**; post-ex checklist in [`work/README.md`](work/README.md).
+
 ![Nessus: 10.20.160.100](Screenshots/vulnerabilities/nessus_10_20_160_100.png)
 
 ---

