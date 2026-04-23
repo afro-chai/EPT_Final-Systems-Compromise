@@ -336,6 +336,8 @@ msf5 > sessions -l
 
 **`hashdump` (SAM):** With **`NT AUTHORITY\SYSTEM`**, **`meterpreter > hashdump`** prints **local SAM** hashes (**`UID:RID:LM:NTLM:::`**). Use for **lab cred pivot / offline crack** per **ROE**; store raw output in **gitignored** notes if required. Full capture: [`100-007`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png).
 
+**End-to-end (session 4):** Single capture from **`run`** through **`sysinfo` / `getuid`**, **`type`** failing in Meterpreter, **`shell`**, and **`type`** on **`Barbara\Desktop\proof.txt`** with operator stamp — [`100-008`](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png).
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -347,6 +349,7 @@ msf5 > sessions -l
 | **100-005** | [`100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png`](../Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png) | **`search -f proof.txt`** → **`c:\Documents and Settings\Barbara\Desktop\proof.txt`** (32 bytes) |
 | **100-006** | [`100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png) | **`type`** in Meterpreter → **`Unknown command`**; **`shell`** → **`type "…\proof.txt" & echo TM6_afrocha %date%`** — proof contents + stamp (**session 4**) |
 | **100-007** | [`100-007_meterpreter_hashdump_sam_tm6_afrocha.png`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png) | **`hashdump`** — **SAM** lines (**Administrator**, **Barbara**, **Guest**, **HelpAssistant**, **SUPPORT_388945a0**, …) as **SYSTEM** on **ADRASTEA** |
+| **100-008** | [`100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png`](../Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png) | **`ms08_067`** **`run`** → **session 4** — **`sysinfo`** (**ADRASTEA**, **JUPITER**) / **`getuid`** **SYSTEM** / **`type`** in Meterpreter fails / **`shell`** + **`type`** **`Barbara\Desktop\proof.txt`** + **`echo TM6_afrocha %date%`** |
 
 ---
 
