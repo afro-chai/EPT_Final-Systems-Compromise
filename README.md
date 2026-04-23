@@ -54,7 +54,7 @@ The table below mirrors the sheet for GitHub. **Scan columns:** use **Complete**
 | | **B_Drummond** | `10.20.160.103` | 21; 80; 443; 3306 | Complete | Complete |
 | | **A_Rocha** | `10.20.160.102` | | | |
 | | **A_Rocha** | `10.20.160.101` | 135; 139; 445; 49152; 49153; 49154; 49155; 49217; 49222 | | |
-| | **A_Rocha** | `10.20.160.100` | 139; 445 | | |
+| Exploited | **A_Rocha** | `10.20.160.100` | 139; 445 | Complete | Complete |
 
 ---
 

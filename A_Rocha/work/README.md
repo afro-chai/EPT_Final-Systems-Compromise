@@ -245,7 +245,7 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **Open ports (from host table)** | **139, 445** (SMB), RDP likely given Nessus |
 | **Nessus highlights** | **Unsupported XP** (critical), **SMB** issues, **RDP** MiTM class, many **info** SMB/plugin rows |
 | **SMB null enum (this run)** | **`enum4linux -a`** — **no NetBIOS reply** from **`10.20.160.100`**; **`Server doesn't allow session using username '', password ''`** — remainder of tests aborted ([`100-001`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)). Do **not** assume **null SMB** works until **`nmap`** shows **137/139/445** reachable and **`smbclient -L -N`** / **CME** agree. |
-| **Shell (validated)** | **`exploit/windows/smb/ms08_067_netapi`** → **Meterpreter** — fingerprint **Windows XP SP3** (English), **`LHOST`** lab IP — [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png). **Post-ex:** **`sysinfo`** — hostname **ADRASTEA**, domain **JUPITER**, **x86**; **`getuid`** — **`NT AUTHORITY\SYSTEM`**; **`shell`** then **`echo … %date% %time%`** (Meterpreter has **no** **`echo`**) — [`100-004`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png). **Wrong lane:** **`ms17_010_eternalblue`** targets **Win7/2008 R2** pool layouts; use **`ms08_067`** on **XP** when **`check`** / **`nmap`** match. |
+| **Shell (validated)** | **`exploit/windows/smb/ms08_067_netapi`** → **Meterpreter** — fingerprint **Windows XP SP3** (English), **`LHOST`** lab IP — [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png). **Post-ex:** **`sysinfo`** — hostname **ADRASTEA**, domain **JUPITER**, **x86**; **`getuid`** — **`NT AUTHORITY\SYSTEM`**; **`shell`** then **`echo … %date% %time%`** (Meterpreter has **no** **`echo`**) — [`100-004`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png). **SAM:** **`hashdump`** → local **LM/NTLM** lines (**Administrator**, **Barbara**, built-ins, etc.) — [`100-007`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png) (**do not** paste hash strings into committed **`.md`**). **Wrong lane:** **`ms17_010_eternalblue`** targets **Win7/2008 R2** pool layouts; use **`ms08_067`** on **XP** when **`check`** / **`nmap`** match. |
 
 ### Vulnerabilities (brief)
 
@@ -334,6 +334,8 @@ msf5 > sessions -l
 
 **Windows `type`:** **`type`** is **`cmd.exe`**, not Meterpreter — **`Unknown command: type`** until you **`shell`**, then e.g. **`type "c:\Documents and Settings\Barbara\Desktop\proof.txt"`**. See [`100-006`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png).
 
+**`hashdump` (SAM):** With **`NT AUTHORITY\SYSTEM`**, **`meterpreter > hashdump`** prints **local SAM** hashes (**`UID:RID:LM:NTLM:::`**). Use for **lab cred pivot / offline crack** per **ROE**; store raw output in **gitignored** notes if required. Full capture: [`100-007`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png).
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -344,6 +346,7 @@ msf5 > sessions -l
 | **100-004** | [`100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png) | **`sysinfo`** — **ADRASTEA** / **JUPITER** / **XP SP3** **x86**; **`getuid`** **SYSTEM**; **`shell`** → **`echo`** with **`%date% %time%`** (evidence stamp) |
 | **100-005** | [`100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png`](../Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png) | **`search -f proof.txt`** → **`c:\Documents and Settings\Barbara\Desktop\proof.txt`** (32 bytes) |
 | **100-006** | [`100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png`](../Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png) | **`type`** in Meterpreter → **`Unknown command`**; **`shell`** → **`type "…\proof.txt" & echo TM6_afrocha %date%`** — proof contents + stamp (**session 4**) |
+| **100-007** | [`100-007_meterpreter_hashdump_sam_tm6_afrocha.png`](../Screenshots/100-007_meterpreter_hashdump_sam_tm6_afrocha.png) | **`hashdump`** — **SAM** lines (**Administrator**, **Barbara**, **Guest**, **HelpAssistant**, **SUPPORT_388945a0**, …) as **SYSTEM** on **ADRASTEA** |
 
 ---
 
