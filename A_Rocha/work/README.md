@@ -388,6 +388,21 @@ exit
 
 ---
 
+## `10.20.160.124` — Domain Controller HIMALIA (`Jupiter.local`)
+
+**Ownership / ROE:** This host is **teammate J_Solis** scope on the map; only probe with **written OK** and **instructor ROE**. These captures are **lightweight fingerprint** (anonymous LDAP + SMB/Kerberos scripts), not an exploit chain.
+
+**What the evidence shows:** **`ldapsearch -x -H ldap://10.20.160.124 -s base namingcontexts`** returns **`DC=Jupiter,DC=local`** (and partition naming contexts) — confirms **AD** on **`.124`**. **`nmap -Pn -p88,445 --script krb5-enum-users,smb-os-discovery,smb-security-mode`** shows **Kerberos (`88`)** and **SMB (`445`)**, **`smb-os-discovery`** → **Windows Server 2008 R2 SP1**, computer **HIMALIA**, domain/forest **`Jupiter.local`**; **`smb-security-mode`** → **`message_signing: required`** (typical for a **DC**).
+
+### Evidence (`124-NNN_*` — for this host octet)
+
+| # | File | What it shows |
+|---|------|----------------|
+| **124-001** | [`124-001_ldapsearch_namingcontexts_jupiter_local_dc_tm6_afrocha.png`](../Screenshots/124-001_ldapsearch_namingcontexts_jupiter_local_dc_tm6_afrocha.png) | **`ldapsearch`** anonymous **`-s base namingcontexts`** on **`.124`** → **`Jupiter.local`** naming contexts |
+| **124-002** | [`124-002_nmap_krb_smb_himalia_dc_tm6_afrocha.png`](../Screenshots/124-002_nmap_krb_smb_himalia_dc_tm6_afrocha.png) | **`nmap`** **`88,445`** + **`krb5-enum-users` / `smb-os-discovery` / `smb-security-mode`** — **HIMALIA**, **Win 2008 R2**, **`message_signing: required`**, stamp **`TM6_afrocha`** |
+
+---
+
 ## Ordering suggestion (one operator on KALI6)
 
 1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
