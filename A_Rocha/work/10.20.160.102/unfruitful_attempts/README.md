@@ -1,6 +1,6 @@
 # Unfruitful attempts — `10.20.160.102` (Linux / dotProject)
 
-Lanes that **did not** yield a shell or were **operator mistakes** before the **RFI** path worked. Screenshots are **embedded** below for quick report paste-in.
+Lanes that **did not** yield a shell (or were **operator mistakes** / **false-negative `check`** noise) alongside **validated** wins (**RFI**, **Shellshock Meterpreter** — see section 1 update and [host README](../README.md)). Screenshots are **embedded** below.
 
 **Navigation:** [Host README](../README.md) · [Attack plan](../attack_plan/README.md) · [Screenshots folder](../Screenshots/) · [Work index](../../README.md)
 
@@ -19,7 +19,11 @@ Lanes that **did not** yield a shell or were **operator mistakes** before the **
 
 **Note:** **`RPATH`** in that module is **CmdStager prefix** (`/bin`), **not** the CGI URL — only **`TARGETURI`** holds **`/cgi-bin/...`**.
 
+**Update (2026-04-25):** A later **`msfconsole`** session used the **same module** with **`run`** (reverse handler **`10.20.150.106:4444`**) and succeeded — **Meterpreter** on **`.102`**, **`sysinfo`** **CentOS 6.3**, **`getuid`** **`no-user @ Elara`**, **`shell`** + **`echo afrocha; date`**. The gap vs the table row above is **`check`** on **`printenv`** vs a **`TARGETURI`** that actually hits **`mod_cgi`** + bash — document the **working URI** in your shell notes if you need full replay, not necessarily in git.
+
 ### Evidence (embedded)
+
+![102-009 — Shellshock apache_mod_cgi Meterpreter sysinfo shell Elara](../Screenshots/102-009_msf_shellshock_apache_mod_cgi_meterpreter_sysinfo_shell_elara_tm6_afrocha.png)
 
 ![exploit_msf_shellshock_printenv — check not vulnerable](../Screenshots/exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png)
 
@@ -68,15 +72,15 @@ Many **Apache 2.2.21** / **PHP 5.3.8** rows target **other CMSs** or **php-cgi**
 
 ---
 
-## 5 — Superseded plan (“Shellshock-first”)
+## 5 — Plan evolution (RFI first, then Shellshock **run**)
 
-Enumeration of **`/cgi-bin/`** remains valid **background**; primary **exploit** effort moved after **dotProject 2.1.6** + **`gantt.php`** **RFI** confirmation (**`102-004`** — see [host README](../README.md), winning lane).
+Enumeration of **`/cgi-bin/`** stayed relevant: **RFI** (**`102-004`**) proved file read/inclusion first; **Shellshock** via **`apache_mod_cgi_bash_env_exec`** later delivered **Meterpreter** (**`102-009`**) once **`TARGETURI`** matched a real **bash-backed CGI** (see section 1 update). Both are **validated** for the report — see [host README](../README.md).
 
 ---
 
 ## 6 — COA 2 — generic `searchsploit` catalogue (reference only)
 
-**Winning lane:** **dotProject-specific RFI** (**EDB-22708**), not **CVE-2012-1823**-style **PHP-CGI** on this stack.
+**Primary coded lanes on this host:** **dotProject RFI** (**EDB-22708**) **and** **Shellshock** (**`apache_mod_cgi_bash_env_exec`**). Generic **CVE-2012-1823**-style **PHP-CGI** rows were **not** the match for this stack.
 
 ---
 
