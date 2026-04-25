@@ -29,11 +29,11 @@
 ## Phase 4 — Next bets
 
 - **`login`** / **`index.php`**: time-box **SQLi**, **auth bypass**, or **`sqlmap`** if ROE allows.
-- **Flags:** **`find`** for **`local.txt` / `proof.txt`** only after a **read** or **shell** primitive exists.
+- **Flags:** **`find`** for **`local.txt` / `proof.txt`** only after a **read** or **shell** primitive exists — captured user flag from **`~/Desktop/local.txt`** via Meterpreter **`shell`** (**`102-010`**).
 
 ## Phase 5 — Reporting
 
-- Chain **EDB-22708** → **`102-004`**, ZAP **`102-005`**, and **Shellshock Meterpreter** **`102-009`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
+- Chain **EDB-22708** → **`102-004`**, ZAP **`102-005`**, **Shellshock Meterpreter** **`102-009`**, and **`local.txt`** **`102-010`** for the narrative; archive dead ends under [unfruitful log](../unfruitful_attempts/README.md).
 
 ---
 
