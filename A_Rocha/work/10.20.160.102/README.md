@@ -1,4 +1,4 @@
-**Navigation:** [Work index](../README.md) · [Credential pivot (hub)](../credential_pivot_A_Rocha_hosts.md) · [Creds — this host](./credential_pivot.md) · [Dead ends](./unfruitful_attempts.md) · [A_Rocha README](../../README.md)
+**Navigation:** [Work index](../README.md) · [Attack plan](./attack_plan/README.md) · [Credential pivot (hub)](../credential_pivot_A_Rocha_hosts.md) · [Creds — this host](./credential_pivot.md) · [Dead ends](./unfruitful_attempts/README.md) · [A_Rocha README](../../README.md)
 
 ---
 
@@ -12,7 +12,7 @@
 | **Exploit-DB mapping** | **`searchsploit dotproject 2.1.6`** → **`php/webapps/22708.txt`** (**EDB-22708**, *Remote File Inclusion*) — full advisory text: [`102-008`](./Screenshots/102-008_searchsploit_x_22708_rfi_gantt_advisory_tm6_afrocha.png); command output: [`102-007`](./Screenshots/102-007_searchsploit_dotproject_2_1_6_edb22708_tm6_afrocha.png). Advisory notes **`allow_url_include`** / **`register_globals`**; lab stack still matched your **inclusion** PoC—cite **both** conditions in the report. |
 | **OWASP ZAP (baseline)** | **Active scan:** **Parameter Tampering** on **`login`** at **`/dotproject/index.php`** (Medium — error-style output / **CWE-472**). **Passive + active:** **X-Frame-Options** missing (clickjacking), weak **cookie** flags, no **Anti-CSRF** on forms, **`X-Powered-By`** leak, **`X-Content-Type-Options`** missing, **timestamp** disclosures — see [`102-005`](./Screenshots/102-005_zap_parameter_tampering_login_dotproject_tm6_afrocha.png), [`102-006`](./Screenshots/102-006_zap_x_frame_options_missing_dotproject_tm6_afrocha.png). |
 
-**Lanes that did not pan out:** Shellshock (**MSF `check`** negative), **`msf > search dot`**, **`php_imap_open_rce`**, generic **PHP-CGI** rows, RFI **listener / path** mistakes — full notes and screenshots: **[`unfruitful_attempts.md`](unfruitful_attempts.md)**.
+**Lanes that did not pan out:** Shellshock (**MSF `check`** negative), **`msf > search dot`**, **`php_imap_open_rce`**, generic **PHP-CGI** rows, RFI **listener / path** mistakes — full notes and screenshots: **[`unfruitful_attempts/README.md`](unfruitful_attempts/README.md)**.
 
 **Plan shift after ZAP:** keep **RFI** as the proven lane; add **time-boxed** manual follow-up on **`login`** (**SQLi** / **auth bypass** / **logic flaws**) using ZAP evidence as the map; treat **clickjacking** / **cookie** / **CSRF** items as **defense-in-depth** findings for the report unless the rubric rewards chained client-side impact.
 

@@ -1,4 +1,4 @@
-**Navigation:** [Work index](../README.md) · [Credential pivot (hub)](../credential_pivot_A_Rocha_hosts.md) · [Creds — this host](./credential_pivot.md) · [Dead ends](./unfruitful_attempts.md) · [A_Rocha README](../../README.md)
+**Navigation:** [Work index](../README.md) · [Attack plan](./attack_plan/README.md) · [Credential pivot (hub)](../credential_pivot_A_Rocha_hosts.md) · [Creds — this host](./credential_pivot.md) · [Dead ends](./unfruitful_attempts/README.md) · [A_Rocha README](../../README.md)
 
 ---
 
@@ -116,7 +116,7 @@ msf5 > sessions -l
 1. **Cred work from `hashdump`** — Crack or rule out **Barbara** / **Administrator** (lab ROE); try **plaintext** on **`.101`** (**SMB**, **RDP**, **FTP**, **HTTP Basic**) and **`.102`** (**SSH**, **web login**). See [`credential_pivot_A_Rocha_hosts.md`](../credential_pivot_A_Rocha_hosts.md).
 2. **From Kali (simplest)** — If a password works, **`crackmapexec smb 10.20.160.101 -u … -p …`**, **`smbclient`**, **`xfreerdp`**, **`curl`** / **`ftp`** — same as before; you already know the hosts answer on the wire.
 3. **Through the Meterpreter session (pivot)** — **`background`** the session, then **`use post/multi/manage/autoroute`**, **`set SESSION …`**, **`run`** to add **`10.20.160.0/24`** (or tighter) via the **compromised host**; add **`auxiliary/server/socks_proxy`** (or **SOCKS4a**) and point **`proxychains`** / **MSF** scanners **through** **ADRASTEA** so **source IP** of probes is **`.100`** (useful if only **internal** paths trust **JUPITER** machines).
-4. **Stay in scope** — Only **`.100` / `.101` / `.102`** (or whatever the sheet lists); document **failures** in [`unfruitful_attempts`](../unfruitful_attempts/README.md).
+4. **Stay in scope** — Only **`.100` / `.101` / `.102`** (or whatever the sheet lists); document **failures** in [`./unfruitful_attempts/README.md`](./unfruitful_attempts/README.md) (this host) and the [central unfruitful index](../unfruitful_attempts/README.md).
 
 ```text
 meterpreter > shell

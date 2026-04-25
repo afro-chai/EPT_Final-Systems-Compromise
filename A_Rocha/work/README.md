@@ -10,11 +10,11 @@ Session transcripts, command snippets, loot exports, and rough notes. Keep **pas
 
 | IP | System | Plan, commands, evidence |
 |----|--------|-------------------------|
-| **`10.20.160.102`** | Linux / dotProject | [`README.md`](10.20.160.102/README.md) · [`Screenshots/`](10.20.160.102/Screenshots/) · [`credential_pivot.md`](10.20.160.102/credential_pivot.md) · [`unfruitful_attempts.md`](10.20.160.102/unfruitful_attempts.md) |
-| **`10.20.160.101`** | Windows 7 (CALLISTO) | [`README.md`](10.20.160.101/README.md) · [`Screenshots/`](10.20.160.101/Screenshots/) · [`credential_pivot.md`](10.20.160.101/credential_pivot.md) · [`unfruitful_attempts.md`](10.20.160.101/unfruitful_attempts.md) |
-| **`10.20.160.100`** | Windows XP (ADRASTEA) | [`README.md`](10.20.160.100/README.md) · [`Screenshots/`](10.20.160.100/Screenshots/) · [`credential_pivot.md`](10.20.160.100/credential_pivot.md) · [`unfruitful_attempts.md`](10.20.160.100/unfruitful_attempts.md) |
+| **`10.20.160.102`** | Linux / dotProject | [`README.md`](10.20.160.102/README.md) · [`attack_plan/`](10.20.160.102/attack_plan/README.md) · [`Screenshots/`](10.20.160.102/Screenshots/) · [`credential_pivot.md`](10.20.160.102/credential_pivot.md) · [`unfruitful_attempts/`](10.20.160.102/unfruitful_attempts/README.md) |
+| **`10.20.160.101`** | Windows 7 (CALLISTO) | [`README.md`](10.20.160.101/README.md) · [`attack_plan/`](10.20.160.101/attack_plan/README.md) · [`Screenshots/`](10.20.160.101/Screenshots/) · [`credential_pivot.md`](10.20.160.101/credential_pivot.md) · [`unfruitful_attempts/`](10.20.160.101/unfruitful_attempts/README.md) |
+| **`10.20.160.100`** | Windows XP (ADRASTEA) | [`README.md`](10.20.160.100/README.md) · [`attack_plan/`](10.20.160.100/attack_plan/README.md) · [`Screenshots/`](10.20.160.100/Screenshots/) · [`credential_pivot.md`](10.20.160.100/credential_pivot.md) · [`unfruitful_attempts/`](10.20.160.100/unfruitful_attempts/README.md) |
 
-**Dead-end lanes:** [`unfruitful_attempts/README.md`](unfruitful_attempts/README.md) (index) — per-host copies under **`unfruitful_attempts.md`** in each IP folder.
+**Dead-end lanes:** [`unfruitful_attempts/README.md`](unfruitful_attempts/README.md) (repo-wide index) — per-host **embedded screenshot logs:** **`10.20.160.*/unfruitful_attempts/README.md`**.
 
 **Nessus / host specs:** [A_Rocha `README.md`](../README.md#nessus--my-hosts-specs--findings).
 
@@ -37,7 +37,7 @@ Session transcripts, command snippets, loot exports, and rough notes. Keep **pas
 
 ## Ordering suggestion (one operator on KALI6)
 
-1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`unfruitful_attempts/`](unfruitful_attempts/README.md).  
+1. **.102** — **dotProject RFI / web** first (validated path); **ZAP** flags **`login`** parameter tampering → time-box **SQLi / auth** follow-up; Shellshock and generic MSF noise archived under [`10.20.160.102/unfruitful_attempts/`](10.20.160.102/unfruitful_attempts/README.md).  
 2. **.100** — **XP** is still high value, but **run `nmap` on `139,445,3389` before `enum4linux`**: if **null SMB** stays dead, use **creds / RDP / vuln `check`** rather than repeating anonymous enum. After **shell**, **`ping`** **`.101` / `.102`** confirms **L3** reach for **pivot** — see [`10.20.160.100/README.md`](10.20.160.100/README.md) (**`ping`** / **`autoroute`**).  
 3. **.101** — **Win7** harder target; use creds or results from **.100** lateral moves if the scenario allows.
 

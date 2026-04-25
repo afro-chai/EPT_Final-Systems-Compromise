@@ -1,15 +1,15 @@
 # Unfruitful attempts (A_Rocha lab)
 
-Archived **dead-end** lanes and operator mistakes.
+Archived **dead-end** lanes and operator mistakes, with **screenshots embedded** in each per-host README.
 
 **Live plans:** [Work `README.md`](../README.md) (index) → per-host **[`10.20.160.100/`](../10.20.160.100/README.md)**, **[`10.20.160.101/`](../10.20.160.101/README.md)**, **[`10.20.160.102/`](../10.20.160.102/README.md)**.
 
-**Per-host dead-end write-ups (moved here from the monolithic doc):**
+**Per-host dead-end logs (README + embedded PNGs):**
 
-| IP | File |
-|----|------|
-| **`10.20.160.101`** | [`../10.20.160.101/unfruitful_attempts.md`](../10.20.160.101/unfruitful_attempts.md) |
-| **`10.20.160.102`** | [`../10.20.160.102/unfruitful_attempts.md`](../10.20.160.102/unfruitful_attempts.md) |
-| **`10.20.160.100`** | [`../10.20.160.100/unfruitful_attempts.md`](../10.20.160.100/unfruitful_attempts.md) |
+| IP | Attack plan | Unfruitful log |
+|----|-------------|----------------|
+| **`10.20.160.100`** | [`../10.20.160.100/attack_plan/README.md`](../10.20.160.100/attack_plan/README.md) | [`../10.20.160.100/unfruitful_attempts/README.md`](../10.20.160.100/unfruitful_attempts/README.md) |
+| **`10.20.160.101`** | [`../10.20.160.101/attack_plan/README.md`](../10.20.160.101/attack_plan/README.md) | [`../10.20.160.101/unfruitful_attempts/README.md`](../10.20.160.101/unfruitful_attempts/README.md) |
+| **`10.20.160.102`** | [`../10.20.160.102/attack_plan/README.md`](../10.20.160.102/attack_plan/README.md) | [`../10.20.160.102/unfruitful_attempts/README.md`](../10.20.160.102/unfruitful_attempts/README.md) |
 
-**Evidence images** for **`.100` / `.101` / `.102`** sit under each host folder: **`../10.20.160.*/Screenshots/`**. Shared captures (**STEPfwd**, teammate **`.124`**, Nessus exports) remain under [`../../Screenshots/`](../../Screenshots/).
+**Evidence PNGs** for **`.100` / `.101` / `.102`** live under each host’s **`Screenshots/`**. Shared captures (**STEPfwd**, **`.124`**, Nessus) stay under [`../../Screenshots/`](../../Screenshots/).

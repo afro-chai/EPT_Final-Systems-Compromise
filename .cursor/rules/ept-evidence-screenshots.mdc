@@ -8,7 +8,7 @@ alwaysApply: true
 Whenever the user provides a screenshot (terminal, tool output, browser, etc.) in chat or as a saved workspace image:
 
 1. **Copy** the image into the per-host folder **`A_Rocha/work/10.20.160.<octet>/Screenshots/`** for scoped targets **`.100` / `.101` / `.102`** (same **`NNN`** naming: **`102-NNN_…_tm6_afrocha.png`**, etc.). Use **`A_Rocha/Screenshots/`** (or **`Screenshots/vulnerabilities/`**) only for **shared** captures (e.g. STEPfwd UI, teammate **`.124`**, Nessus exports). Increment **`NNN`** per host; update links in that host’s **`work/10.20.160.<octet>/README.md`** in the same commit.
-2. If the image documents a step in the engagement runbook, **add or extend** the relevant section in **`A_Rocha/work/10.20.160.<octet>/README.md`** and, if needed, one line in **`A_Rocha/work/README.md`**. Do not wait for the user to ask to “add it to the repo.”
+2. If the image documents a step in the engagement runbook, **add or extend** the relevant section in **`A_Rocha/work/10.20.160.<octet>/README.md`**. For **dead-end** attempts, also add a subsection with an **embedded image** in **`A_Rocha/work/10.20.160.<octet>/unfruitful_attempts/README.md`**. Optionally one line in **`A_Rocha/work/README.md`**. Do not wait for the user to ask to “add it to the repo.”
 3. **Commit and push** when the rest of the session’s changes are ready, unless the user only wanted a quick answer with no repo update.
 
 If the image file only exists under Cursor workspace storage (AppData), locate it by recent `image-*.png` names or the path the product shows, then copy into the repo path above.
