@@ -9,6 +9,8 @@
 | **`10.20.160.101`** | [`10.20.160.101/credential_pivot.md`](10.20.160.101/credential_pivot.md) |
 | **`10.20.160.100`** | [`10.20.160.100/credential_pivot.md`](10.20.160.100/credential_pivot.md) |
 | **`10.20.160.102`** | [`10.20.160.102/credential_pivot.md`](10.20.160.102/credential_pivot.md) |
+| **`10.20.160.124`** | [`10.20.160.124/credential_pivot.md`](10.20.160.124/credential_pivot.md) |
+| **`10.20.160.103`** | [`10.20.160.103/credential_pivot.md`](10.20.160.103/credential_pivot.md) |
 
 ---
 
@@ -79,3 +81,6 @@ If **John** cracks it, return to **[`10.20.160.101/credential_pivot.md`](10.20.1
 
 - Re-type secrets from **`credentials_handoff_SECRETS.md`** into commands **locally**; do not paste into **Slack** / **GitHub issues**.  
 - When a spray works, **screenshot** + **`101-NNN` / `100-NNN`** naming; update the relevant per-host doc with **“works: method + user”** only — **not** the password.
+
+
+

@@ -16,7 +16,7 @@ If you forgot how to open the lab environment:
 <li>Click <strong>Connect</strong> (the link on the right, highlighted in yellow in the screenshot) to launch the exercise and reach your assigned <strong>Kali</strong> VM.</li>
 </ol>
 
-<p><strong>This folder:</strong> use <a href="work/"><code>work/</code></a> as the index. Each scoped IP folder — <a href="work/10.20.160.100/"><code>work/10.20.160.100/</code></a>, <a href="work/10.20.160.101/"><code>work/10.20.160.101/</code></a>, <a href="work/10.20.160.102/"><code>work/10.20.160.102/</code></a> — has <code>README.md</code> (full runbook), <code>attack_plan/README.md</code> (phased attack plan), <code>Screenshots/</code>, <code>credential_pivot.md</code>, and <code>unfruitful_attempts/README.md</code> (dead-end log with embedded screenshots). <a href="work/unfruitful_attempts/"><code>work/unfruitful_attempts/</code></a> is the cross-host index. Shared images (STEPfwd, <code>.124</code>, Nessus) stay in <a href="Screenshots/"><code>Screenshots/</code></a>. Evidence names: <code>102-NNN_…</code>, <code>101-NNN_…</code>, <code>100-NNN_…</code> — see <a href="work/README.md"><code>work/README.md</code></a>. Promote finals to <a href="../1_Screenshots/"><code>1_Screenshots/</code></a> when report-ready.</p>
+<p><strong>This folder:</strong> use <a href="work/"><code>work/</code></a> as the index. Each scoped IP folder — <a href="work/10.20.160.100/"><code>work/10.20.160.100/</code></a>, <a href="work/10.20.160.101/"><code>work/10.20.160.101/</code></a>, <a href="work/10.20.160.102/"><code>work/10.20.160.102/</code></a>, <a href="work/10.20.160.124/"><code>work/10.20.160.124/</code></a>, and <a href="work/10.20.160.103/"><code>work/10.20.160.103/</code></a> — has <code>README.md</code> (full runbook), <code>attack_plan/README.md</code> (phased attack plan), <code>Screenshots/</code>, <code>credential_pivot.md</code>, and <code>unfruitful_attempts/README.md</code> (dead-end log with embedded screenshots). <a href="work/unfruitful_attempts/"><code>work/unfruitful_attempts/</code></a> is the cross-host index. Shared images (STEPfwd, <code>.124</code>, Nessus) stay in <a href="Screenshots/"><code>Screenshots/</code></a>. Evidence names: <code>102-NNN_…</code>, <code>101-NNN_…</code>, <code>100-NNN_…</code> — see <a href="work/README.md"><code>work/README.md</code></a>. Promote finals to <a href="../1_Screenshots/"><code>1_Screenshots/</code></a> when report-ready.</p>
 
 </td>
 <td width="38%" align="center">
@@ -29,7 +29,7 @@ If you forgot how to open the lab environment:
 </tr>
 </table>
 
-**Plan of attack (index + per-IP folders):** [`work/README.md`](work/README.md) → [`work/10.20.160.100/README.md`](work/10.20.160.100/README.md), [`work/10.20.160.101/README.md`](work/10.20.160.101/README.md), [`work/10.20.160.102/README.md`](work/10.20.160.102/README.md)
+**Plan of attack (index + per-IP folders):** [`work/README.md`](work/README.md) → [`work/10.20.160.100/README.md`](work/10.20.160.100/README.md), [`work/10.20.160.101/README.md`](work/10.20.160.101/README.md), [`work/10.20.160.102/README.md`](work/10.20.160.102/README.md), [`work/10.20.160.124/README.md`](work/10.20.160.124/README.md), [`work/10.20.160.103/README.md`](work/10.20.160.103/README.md)
 
 ---
 
@@ -191,3 +191,4 @@ Full command playbook: [`work/README.md`](work/README.md) → [`work/10.20.160.1
 - [ ] CP5 — Lateral / pivot (if applicable)
 - [ ] CP6 — Report handoff done
 - [ ] CP7 — Submit-ready
+
