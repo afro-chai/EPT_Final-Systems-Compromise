@@ -1,2 +1,6 @@
 # Local secrets — never push (see A_Rocha/work/README.md)
 A_Rocha/work/credentials_handoff_SECRETS.md
+
+# Reference material: track tree only, not nested clone metadata
+_ref_pwn2/.git/
+_ref_pwn2/_git_nested_backup_do_not_push_as_submodule/

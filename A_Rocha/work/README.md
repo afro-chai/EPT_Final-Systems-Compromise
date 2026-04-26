@@ -18,6 +18,8 @@ Session transcripts, command snippets, loot exports, and rough notes. Keep **pas
 
 **Dead-end lanes:** [`unfruitful_attempts/README.md`](unfruitful_attempts/README.md) (repo-wide index) — per-host **embedded screenshot logs:** **`10.20.160.*/unfruitful_attempts/README.md`**.
 
+**Three-IP rubric write-up:** [`success_paths_writeup.md`](success_paths_writeup.md) (report-ready narrative for `.100` / `.101` / `.102`). **Final Report paste-ins:** [`final_report_merge_blocks_100_101_102.md`](final_report_merge_blocks_100_101_102.md) (Executive Summary, Detailed Findings, Technical Overview 3.1–3.5, figure index / TOC lines).
+
 **Nessus / host specs:** [A_Rocha `README.md`](../README.md#nessus--my-hosts-specs--findings).
 
 ---
