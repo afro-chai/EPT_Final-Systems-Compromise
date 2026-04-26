@@ -99,9 +99,27 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 # xfreerdp /v:$RHOST /u:<user> /p:<pass> /cert:ignore
 ```
 
-Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **clock-skew** — [`101-016`](./Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png).
+**MSF RDP fingerprint (safe auxiliary):**
+
+```text
+msfconsole -q
+use auxiliary/scanner/rdp/rdp_scanner
+set RHOSTS 10.20.160.101
+set RPORT 3389
+run
+```
+
+Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **clock-skew** — [`101-016`](./Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png). **MSF `rdp_scanner`:** RDP on **`.101:3389`**, **Windows `6.1.7601`**, **`Requires NLA: No`** — [`101-019`](./Screenshots/101-019_msf_aux_rdp_scanner_101_3389_nla_no_win7601_tm6_afrocha.png).
 
 **RDP username disclosure (UI):** An RDP / Terminal Services session capture shows **`CALLISTO\Alice`** as **Logged on** — that is a **real account name on this host** for **credentialed** follow-up (sheet reuse, small approved lists, **HTTP Basic** material from **`.htpasswd`**, etc.) **only where your ROE allows**. Treat large wordlists (e.g. public “rockyou”-style sets) as **high lockout / policy risk** unless the syllabus explicitly permits them on this target; never paste passwords or spray output into git. Evidence: [`101-018`](./Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png).
+
+### Now what (RDP on dot 101)
+
+1. **Interactive login first:** use **`xfreerdp`** with **one** password you are allowed to test (**[`credential_pivot.md`](./credential_pivot.md)** — GANYMEDE / sheet / **`.htpasswd`**). Usernames to try: **`Alice`**, **`CALLISTO\Alice`**, **`Administrator`**, **`JUPITER\Administrator`** as documented there. Screenshot success or **redacted** failure.  
+2. **SMB before huge wordlists:** same passwords against **445** with **CrackMapExec** often returns faster signal than RDP at ~50 tries/min.  
+3. **If you use Hydra / wordlists:** prefer a **small slice** of rockyou (e.g. `head -n 500`) and **low `-t`** to reduce lockout; full rockyou at low speed is **days** of runtime — document **attempted / stopped** for the report if you time-box.  
+4. **Unauthenticated RDP RCE:** your BlueKeep run already showed **inconclusive / not-vulnerable** — treat that lane as **closed** unless the instructor reopens it; do **not** rely on **`ForceExploit`** for production-style decisions.  
+5. **Parallel lanes:** keep **HTTP / FTP** evidence chains (`101-011`–`101-015`) in the report if RDP stays negative.
 
 ### Evidence (`101-NNN_*` — chronological for this host)
 
@@ -125,5 +143,6 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **101-016** | [`101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png`](./Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png) | **`curl -sik`** → **302** **`Location: …/xampp/`** (Apache **2.2.17** Win32, **PHP 5.3.x**); **`nmap -Pn -p3389 -sV -sC`** → **RDP** open + **`ssl-date`** / **clock-skew** |
 | **101-017** | [`101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png`](./Screenshots/101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png) | **`ms17_010_eternalblue` `run`** — **`IPC$`** login error → **`RubySMB … 0xc000018d STATUS_TRUSTED_RELATIONSHIP_FAILURE`** — **no session** |
 | **101-018** | [`101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png`](./Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png) | RDP / TS login UI — **`CALLISTO\Alice`** shown as **Logged on**; confirms **local account name** for credentialed testing per **ROE** (no secrets in repo) |
+| **101-019** | [`101-019_msf_aux_rdp_scanner_101_3389_nla_no_win7601_tm6_afrocha.png`](./Screenshots/101-019_msf_aux_rdp_scanner_101_3389_nla_no_win7601_tm6_afrocha.png) | **`auxiliary/scanner/rdp/rdp_scanner`** — **RDP** on **`.101:3389`**, **Windows 6.1.7601**, **`Requires NLA: No`** (fingerprint only) |
 
 ---

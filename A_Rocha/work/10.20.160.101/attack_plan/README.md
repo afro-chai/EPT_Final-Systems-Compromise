@@ -29,6 +29,7 @@
 
 - Reuse passwords / hashes from **`.100` SAM**, teammate handoff, or sheet — **RDP**, **SMB**, **MySQL**, **WinRM** per [`../credential_pivot.md`](../credential_pivot.md).
 - **RDP username from UI:** **`CALLISTO\Alice`** (logged-on tile) — evidence [`101-018`](../Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png); use only with **ROE-approved** password material and lockout-aware testing.
+- **RDP fingerprint:** MSF **`auxiliary/scanner/rdp/rdp_scanner`** on **3389** — **NLA not required**, Win **6.1.7601** — [`101-019`](../Screenshots/101-019_msf_aux_rdp_scanner_101_3389_nla_no_win7601_tm6_afrocha.png); then **`xfreerdp`** / bounded wordlist per host [README **Now what** section](../README.md#now-what-rdp-on-dot-101).
 
 ## Phase 5 — Reporting
 
