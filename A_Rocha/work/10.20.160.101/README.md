@@ -101,6 +101,8 @@ nmap -Pn -p3389 -sV -sC "$RHOST"
 
 Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **clock-skew** — [`101-016`](./Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png).
 
+**RDP username disclosure (UI):** An RDP / Terminal Services session capture shows **`CALLISTO\Alice`** as **Logged on** — that is a **real account name on this host** for **credentialed** follow-up (sheet reuse, small approved lists, **HTTP Basic** material from **`.htpasswd`**, etc.) **only where your ROE allows**. Treat large wordlists (e.g. public “rockyou”-style sets) as **high lockout / policy risk** unless the syllabus explicitly permits them on this target; never paste passwords or spray output into git. Evidence: [`101-018`](./Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png).
+
 ### Evidence (`101-NNN_*` — chronological for this host)
 
 | # | File | What it shows |
@@ -122,5 +124,6 @@ Example output: **3389/tcp open** (`ssl/ms-wbt-server`), **`ssl-date`** / **cloc
 | **101-015** | [`101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png`](./Screenshots/101-015_http_403_xampp_local_network_httpd_xampp_conf_tm6_afrocha.png) | **403** — XAMPP “**only from local network**”; names **`httpd-xampp.conf`** (server-side Apache config, not an HTTP upload target) |
 | **101-016** | [`101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png`](./Screenshots/101-016_curl_302_xampp_nmap_3389_rdp_open_tm6_afrocha.png) | **`curl -sik`** → **302** **`Location: …/xampp/`** (Apache **2.2.17** Win32, **PHP 5.3.x**); **`nmap -Pn -p3389 -sV -sC`** → **RDP** open + **`ssl-date`** / **clock-skew** |
 | **101-017** | [`101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png`](./Screenshots/101-017_msf_eternalblue_status_trusted_relationship_failure_tm6_afrocha.png) | **`ms17_010_eternalblue` `run`** — **`IPC$`** login error → **`RubySMB … 0xc000018d STATUS_TRUSTED_RELATIONSHIP_FAILURE`** — **no session** |
+| **101-018** | [`101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png`](./Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png) | RDP / TS login UI — **`CALLISTO\Alice`** shown as **Logged on**; confirms **local account name** for credentialed testing per **ROE** (no secrets in repo) |
 
 ---

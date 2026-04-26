@@ -27,6 +27,8 @@ If that fails, try **`JUPITER\Administrator`** (same password):
 xfreerdp /v:"$H101" /u:'JUPITER\Administrator' /p:'<GANYMEDE_ADMIN_CLEAR>' /cert:ignore /dynamic-resolution
 ```
 
+**`CALLISTO\Alice` (from RDP UI — [`101-018`](./Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png)):** The login tile discloses a **local user** on **CALLISTO**. You may try **`xfreerdp`** with **`/u:Alice`** or **`/u:'CALLISTO\Alice'`** when you have a **password you are allowed to test** (team sheet, reused cleartext from **`.htpasswd`**, etc.). Large public wordlists are **only** appropriate if the **course explicitly allows** them on this host; use throttling and **account-lockout** awareness, and keep spray logs out of git.
+
 ## SMB with CrackMapExec (same password)
 
 ```bash

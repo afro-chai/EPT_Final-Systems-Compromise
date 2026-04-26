@@ -28,10 +28,11 @@
 ## Phase 4 — Credentialed pivot
 
 - Reuse passwords / hashes from **`.100` SAM**, teammate handoff, or sheet — **RDP**, **SMB**, **MySQL**, **WinRM** per [`../credential_pivot.md`](../credential_pivot.md).
+- **RDP username from UI:** **`CALLISTO\Alice`** (logged-on tile) — evidence [`101-018`](../Screenshots/101-018_rdp_login_callisto_alice_logged_on_tm6_afrocha.png); use only with **ROE-approved** password material and lockout-aware testing.
 
 ## Phase 5 — Reporting
 
-- Evidence **`101-NNN_*`** under [`../Screenshots/`](../Screenshots/); document **EternalBlue** negatives and **FTP/HTTP** positives for the report.
+- Evidence **`101-NNN_*`** under [`../Screenshots/`](../Screenshots/); document **EternalBlue** negatives, **FTP/HTTP** positives, and **RDP UI** (`101-018`) for the report.
 
 ---
 
